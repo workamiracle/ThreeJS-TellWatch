@@ -24,7 +24,7 @@ const clock = new THREE.Clock();
 
 let mixer;
 
-const camPos1 = [-0.3, 1.0, 0.5], camPos2 = [0, 1.2, 0.3];
+const camPos1 = [-0.0, 1.0, 0.0], camPos2 = [0, 1.2, 0.3];
 let camPos = camPos1;
 
 init();
@@ -38,8 +38,7 @@ function init() {
 
 	}
 
-	const container = document.createElement( 'div' );
-	document.body.appendChild( container );
+	const container = document.getElementById( 'webgl-canvas' );
 
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 
@@ -48,34 +47,7 @@ function init() {
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xffffff);
-	//scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
-
-	const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-	hemiLight.position.set( 0, 200, 0 );
-	//scene.add( hemiLight );
-
-	const pointLight = new THREE.PointLight( 0xaaaaaa, 2, 800 );
-	pointLight.position.set(120, 100, 100);
-	pointLight.castShadow = true;
-	scene.add(pointLight);
-
-	const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-	dirLight.position.set( -120, 200, -20 );
-	dirLight.castShadow = true;
-	dirLight.shadow.camera.top = 180;
-	dirLight.shadow.camera.bottom = - 100;
-	dirLight.shadow.camera.left = - 120;
-	dirLight.shadow.camera.right = 120;
-	scene.add( dirLight );
-
-	//scene.add( new THREE.AmbientLight( 0x222222 ) );
-
-	// ground
-	const mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-	mesh.rotation.x = - Math.PI / 2;
-	mesh.receiveShadow = true;
-	mesh.position.set(0, 0, 0);
-	//scene.add( mesh );
+	
 
 	// Set up post processing
 	// Create a render target that holds a depthTexture so we can use it in the outline pass
@@ -117,28 +89,17 @@ function init() {
 
 	const surfaceFinder = new FindSurfaces();
 
-	const phongM = new THREE.MeshPhongMaterial( {
-		bumpScale: 1,
-		color: new THREE.Color().setRGB(1, 1, 1),
-		specular: new THREE.Color().setRGB(1.0, 1.0, 1.0),
-		reflectivity: 0.9,
-		shininess: 100,
-		envMap: null
-	} );
-
 	const basicM = new THREE.MeshBasicMaterial({});
 
 
 	// model
 	const loader = new GLTFLoader();
-	loader.load( './models/Xbot.glb', function ( object ) {
+	loader.load( './models/tellwatch_exterieur.glb', function ( object ) {
 
 		mixer = new THREE.AnimationMixer( object.scene );
 		const action = mixer.clipAction( object.animations[ 0 ] );
 		action.play();
 		
-
-		console.log(object);
 		object.scene.traverse( function ( child ) {
 
       if ( child.isMesh ) {
@@ -179,7 +140,7 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	renderer.shadowMap.enabled = true;
-	container.appendChild( renderer.domElement );
+	container.append( renderer.domElement );
 
 	const pixelRatio = renderer.getPixelRatio();
 
@@ -195,44 +156,17 @@ function init() {
 	controls.update();
 
 	window.addEventListener( 'resize', onWindowResize, false );
-	window.addEventListener( 'mousedown', onMouseDown, false );
-}
-
-function onMouseDown() {
-	if(showTooltip) {
-		camSpeed = [(camPos2[0] - camPos1[0]) / 200, (camPos2[1] - camPos1[1]) / 200, (camPos2[2] - camPos1[2]) / 200];
-		timer = setInterval(moveCamera, 20);
-
-		showTooltip = false;
-
-		document.getElementById('tooltip').style.display = 'none';
-	}
-}
-
-function moveCamera() {
-	camPos = [camPos[0] + camSpeed[0], camPos[1] + camSpeed[1], camPos[2] + camSpeed[2]];
-	camera.position.set(...camPos);
-
-	if(camPos[0] > camPos2[0] || camPos[1] > camPos2[1] || camPos[2] < camPos2[2]) {
-		camSpeed = [-camSpeed[0], -camSpeed[1], -camSpeed[2]];
-	}
-
-	if(camPos[0] < camPos1[0] || camPos[1] < camPos1[1] || camPos[2] > camPos1[2]) {
-		clearInterval(timer);
-		showTooltip = true;
-		document.getElementById('tooltip').style.display = 'block';
-	}
-	//controls.target.set( 0, 0, 0 );
-	controls.update();
 }
 
 function onWindowResize() {
-	console.log(window.innerHeight, window.innerWidth);
-
-	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = window.innerWidth > window.innerHeight ? window.innerWidth / window.innerHeight : 1;
 	camera.updateProjectionMatrix();
 
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	if(window.innerWidth > window.innerHeight)
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	else
+		renderer.setSize( window.innerWidth, window.innerWidth );
+		
 
 	composer.setSize(window.innerWidth, window.innerHeight);
   effectFXAA.setSize(window.innerWidth, window.innerHeight);
@@ -258,61 +192,4 @@ function animate() {
 
 	//renderer.render( scene, camera );
 	composer.render();
-}
-
-THREE.BufferGeometry.prototype.computeAngleVertexNormals = function(angle){
-	function weightedNormal( normals, vector ) {
-
-		var normal = new THREE.Vector3();
-
-		for ( var i = 0, l = normals.length; i < l; i ++ ) {
-
-			if ( normals[ i ].angleTo( vector ) < angle ) {
-
-				normal.add( normals[ i ] );
-
-			}
-
-		}
-
-		return normal.normalize();
-
-	}
-
-	//this.computeFaceNormals();
-
-	var vertexNormals = [];
-
-	for ( var i = 0, l = this.vertices.length; i < l; i ++ ) {
-
-		vertexNormals[ i ] = [];
-
-	}
-
-	for ( var i = 0, fl = this.faces.length; i < fl; i ++ ) {
-
-		var face = this.faces[ i ];
-
-		vertexNormals[ face.a ].push( face.normal );
-		vertexNormals[ face.b ].push( face.normal );
-		vertexNormals[ face.c ].push( face.normal );
-
-	}
-
-	for ( var i = 0, fl = this.faces.length; i < fl; i ++ ) {
-
-		var face = this.faces[ i ];
-
-		face.vertexNormals[ 0 ] = weightedNormal( vertexNormals[ face.a ], face.normal );
-		face.vertexNormals[ 1 ] = weightedNormal( vertexNormals[ face.b ], face.normal );
-		face.vertexNormals[ 2 ] = weightedNormal( vertexNormals[ face.c ], face.normal );
-
-	}
-
-	if ( this.faces.length > 0 ) {
-
-		this.normalsNeedUpdate = true;
-
-	}
-
 }
