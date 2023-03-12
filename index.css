@@ -3,11 +3,27 @@ body {
 	background-color: #000;
 	color: #fff;
 	font-family: Monospace;
-	font-size: 13px;
+	font-size: 16px;
 	line-height: 24px;
 	overscroll-behavior: none;
+  min-height: 700px;
+  font-family: 'NittiGrotesk' !important;
 }
 
-canvas {
-  left: 25%;
+.webgl-canvas {
+  display: none;
+}
+
+.progressbar {
+  font-size: 1.5rem;
+  margin: auto;
+  margin-top: 5rem;
+  background-color: white;
+}
+
+.progressbar .bar {
+  width: 0%;
+  height: 2.5rem;
+  
+  background-color: #fdd205;
 }

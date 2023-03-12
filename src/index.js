@@ -24,7 +24,7 @@ const clock = new THREE.Clock();
 
 let mixer;
 
-const camPos1 = [-0.0, 1.0, 0.0], camPos2 = [0, 1.2, 0.3];
+const camPos1 = [-0.0, 1.0, 0.0], camPos2 = [0, 1.0, 0];
 let camPos = camPos1;
 
 init();
@@ -91,31 +91,34 @@ function init() {
 
 	const basicM = new THREE.MeshBasicMaterial({});
 
+	// ProgressBar and Bar
+	let progressbar = document.getElementById('bar');
+	let progress = document.getElementById('progress');
 
 	// model
 	const loader = new GLTFLoader();
-	loader.load( './models/tellwatch_exterieur.glb', function ( object ) {
+	loader.load( './models/tellwatch_all.glb', function ( object ) {
+		console.log(object);
 
 		mixer = new THREE.AnimationMixer( object.scene );
 		const action = mixer.clipAction( object.animations[ 0 ] );
-		action.play();
+		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 101, 150, 25));
+		//action.loop = THREE.LoopPingPong;
+		//action.play();
 		
 		object.scene.traverse( function ( child ) {
 
       if ( child.isMesh ) {
 	      child.castShadow = true;
 	      child.receiveShadow = true;
-				child.material = basicM;		
-
-				//child.geometry.computeAngleVertexNormals(Math.PI/2);
-				//child.geometry = mergeVertices(child.geometry, 1e-2);
-				//child.geometry.computeVertexNormals();
+				child.material = basicM;
       }
 
 		} );
 
 		watch = object.scene;
 		watch.position.set(0, 0, 0);
+		watch.rotation.set(0, 0, 0);
 		//watch.scale.set(10, 10, 10);
 
 		scene.add( watch );
@@ -133,6 +136,12 @@ function init() {
 		});
 
 		customOutline.updateMaxSurfaceId(surfaceFinder.surfaceId + 1);
+
+		progress.style.display = 'none';
+		container.style.display = 'block';
+	}, 
+	function (xhr) {
+		progressbar.style.width = ( xhr.loaded / xhr.total * 100 ) + '%';
 	} );
 
 	
