@@ -12,6 +12,7 @@ import WebGL from 'three/addons/capabilities/WebGL.js';
 import { CustomOutlinePass } from "./CustomOutlinePass.js";
 import FindSurfaces from "./FindSurfaces.js";
 import { loadActions } from "./loadActions.js";
+import { States } from "./States.js";
 
 let camera, scene, renderer, controls, watch;
 let composer, effectFXAA, customOutline, depthTexture, renderTarget;
@@ -19,7 +20,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, rotCount;
+let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount, curState = States.closed;
 
 const clock = new THREE.Clock();
 
@@ -40,7 +41,7 @@ function init() {
 
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 
-	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 2000 );
+	camera = new THREE.PerspectiveCamera( 60, window.innerWidth > window.innerHeight ? window.innerWidth / window.innerHeight : 1, 0.1, 2000 );
 	camera.position.set( 0.0, 1.5, 0.0 );
 
 	scene = new THREE.Scene();
@@ -104,6 +105,8 @@ function init() {
 		//action.loop = THREE.LoopPingPong;
 		//action.play();
 		//actions['folded'].play();
+		actions['closed'].play();
+
 		
 		object.scene.traverse( function ( child ) {
 
@@ -148,9 +151,12 @@ function init() {
 
 	
 	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-	renderer.shadowMap.enabled = true;
+	if(window.innerWidth > window.innerHeight)
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	else
+		renderer.setSize( window.innerWidth, window.innerWidth );
+	//renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	//renderer.shadowMap.enabled = true;
 	container.append( renderer.domElement );
 
 	const pixelRatio = renderer.getPixelRatio();
@@ -170,6 +176,7 @@ function init() {
 
 	// UI Events
 	document.getElementById('discover-more').addEventListener('click', discoverMore);
+	document.getElementById('rotate').addEventListener('click', larotation);
 }
 
 function onWindowResize() {
@@ -208,22 +215,96 @@ function animate() {
 	composer.render();
 }
 
+//	General Move and Rotation
+function moveAndRotate() {
+	curPos = [(nextPos[0] - prevPos[0]) / 200 + curPos[0], (nextPos[1] - prevPos[1]) / 200 + curPos[1], (nextPos[2] - prevPos[2]) / 200 + curPos[2]];
+	curRot = [(nextRot[0] - prevRot[0]) / 200 + curRot[0], (nextRot[1] - prevRot[1]) / 200 + curRot[1], (nextRot[2] - prevRot[2]) / 200 + curRot[2]];
+
+	watch.rotation.set(...curRot);
+	watch.position.set(...curPos);
+
+	if((--rotCount) == 0) clearTimeout(timer);	
+}
 
 //	Discover More
 function discoverMore() {
 	document.getElementById('discover-more').style.display = 'none';
-	actions['closed'].play();
+	clearInterval(timer);
+
+	prevPos = curPos;
+	prevRot = curRot;
+	nextPos = [0.0, 0.0, 0.0];
+	//nextRot = [0.0, 0.0, 0.0];
+	rotCount = 50;
+	timer = setInterval(discoverMore1, 20);
+}
+
+function discoverMore1() {
+	curPos = [(nextPos[0] - prevPos[0]) / 50 + curPos[0], (nextPos[1] - prevPos[1]) / 50 + curPos[1], (nextPos[2] - prevPos[2]) / 50 + curPos[2]];
 	
-	rotCount = 200;
-	timer = setInterval(moveAndRotate, 20);
+	watch.position.set(...curPos);
+
+	if((--rotCount) == 0) {
+		clearInterval(timer);
+		rotCount = 50;
+		prevRot = curRot;
+		nextRot = [curRot[0], 0.0, curRot[2]];
+		timer = setInterval(discoverMore2, 20);
+	}
+}
+function discoverMore2() {
+	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+	
+	watch.rotation.set(...curRot);
+
+	if((--rotCount) == 0) {
+		clearInterval(timer);
+		rotCount = 50;
+		prevRot = curRot;
+		nextRot = [0.0, curRot[1], curRot[2]];
+		timer = setInterval(discoverMore3, 20);
+	}
+}
+function discoverMore3() {
+	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+	
+	watch.rotation.set(...curRot);
+
+	if((--rotCount) == 0) {
+		clearInterval(timer);
+		document.getElementById('rotate').style.display = 'block';
+	}
 }
 
-function moveAndRotate() {
-	if((--rotCount) == 0) clearTimeout(timer);	
+// Rotation at La Rotation
+let laRotating = false, laForward = true;
+function larotation() {
+	if(!laRotating) {
+		laRotating = true;
+
+		timer = setInterval(laRotation1, 20);
+	}
+}
+function laRotation1() {
+	curRot = [curRot[0] + Math.PI / 200, 0.0, 0.0];
+	if(laForward && curRot[0] >= Math.PI) {
+		clearInterval(timer);
+		laForward = false;
+		curRot[0] = -Math.PI;
+		laRotating = false;
+	} else if(!laForward && curRot[0] >= 0.0) {
+		clearInterval(timer);
+		laForward = true;
+		curRot[0] = 0.0;
+		laRotating = false;
+	}
+
+	watch.rotation.set(...curRot);
 }
 
+//	Rotation at the beginning
 function idle() {
-	curRot[1] += Math.PI / 180;
+	curRot[1] += Math.PI / 360;
 	if(curRot[1] >= Math.PI) curRot[1] -= 2 * Math.PI;
 	
 	watch.rotation.set(...curRot);

@@ -54,7 +54,7 @@ body {
 .click-buttons .discover-more a {
   position: absolute;
   top: 25rem;
-  right: 5%;
+  right: 10%;
   font-size: 2.75rem;
   font-family: 'NittiGrotesk-Bold';
   text-transform: uppercase;
@@ -67,4 +67,25 @@ body {
 .click-buttons .discover-more a:hover {
   color: #000;
   background-color: #fff;
+}
+
+.click-buttons .rotate a {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 20rem;
+  left: 5%;
+  font-family: 'NittiGrotesk-Bold';
+  font-size: 1.9rem;
+  color: #000;
+  text-decoration: none;
+}
+
+.click-buttons .rotate a img {
+  height: 150px;
+  transition: all 0.3s;
+}
+
+.click-buttons .rotate a:hover img {
+  height: 170px;
 }
