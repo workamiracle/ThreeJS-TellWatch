@@ -11,6 +11,7 @@ import WebGL from 'three/addons/capabilities/WebGL.js';
 
 import { CustomOutlinePass } from "./CustomOutlinePass.js";
 import FindSurfaces from "./FindSurfaces.js";
+import { loadActions } from "./loadActions.js";
 
 let camera, scene, renderer, controls, watch;
 let composer, effectFXAA, customOutline, depthTexture, renderTarget;
@@ -18,14 +19,11 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer;
-let camSpeed;
+let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, rotCount;
 
 const clock = new THREE.Clock();
 
-let mixer;
-
-const camPos1 = [-0.0, 1.0, 0.0], camPos2 = [0, 1.0, 0];
-let camPos = camPos1;
+let mixer, actions;
 
 init();
 animate();
@@ -43,7 +41,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 2000 );
-	camera.position.set( ...camPos );
+	camera.position.set( 0.0, 1.5, 0.0 );
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xffffff);
@@ -98,13 +96,14 @@ function init() {
 	// model
 	const loader = new GLTFLoader();
 	loader.load( './models/tellwatch_all.glb', function ( object ) {
-		console.log(object);
 
 		mixer = new THREE.AnimationMixer( object.scene );
-		const action = mixer.clipAction( object.animations[ 0 ] );
-		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 101, 150, 25));
+		actions = loadActions(mixer, object.animations[0]);
+		//const action = mixer.clipAction( object.animations[ 0 ] );
+		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 260, 490, 25));
 		//action.loop = THREE.LoopPingPong;
 		//action.play();
+		//actions['folded'].play();
 		
 		object.scene.traverse( function ( child ) {
 
@@ -117,8 +116,8 @@ function init() {
 		} );
 
 		watch = object.scene;
-		watch.position.set(0, 0, 0);
-		watch.rotation.set(0, 0, 0);
+		watch.position.set(-0.3, 0, 0);
+		watch.rotation.set(-Math.PI / 4, 0, 0);
 		//watch.scale.set(10, 10, 10);
 
 		scene.add( watch );
@@ -139,6 +138,9 @@ function init() {
 
 		progress.style.display = 'none';
 		container.style.display = 'block';
+		document.getElementById('discover-more').style.display = 'block';
+
+		timer = setInterval(idle, 20);
 	}, 
 	function (xhr) {
 		progressbar.style.width = ( xhr.loaded / xhr.total * 100 ) + '%';
@@ -165,6 +167,9 @@ function init() {
 	controls.update();
 
 	window.addEventListener( 'resize', onWindowResize, false );
+
+	// UI Events
+	document.getElementById('discover-more').addEventListener('click', discoverMore);
 }
 
 function onWindowResize() {
@@ -201,4 +206,25 @@ function animate() {
 
 	//renderer.render( scene, camera );
 	composer.render();
+}
+
+
+//	Discover More
+function discoverMore() {
+	document.getElementById('discover-more').style.display = 'none';
+	actions['closed'].play();
+	
+	rotCount = 200;
+	timer = setInterval(moveAndRotate, 20);
+}
+
+function moveAndRotate() {
+	if((--rotCount) == 0) clearTimeout(timer);	
+}
+
+function idle() {
+	curRot[1] += Math.PI / 180;
+	if(curRot[1] >= Math.PI) curRot[1] -= 2 * Math.PI;
+	
+	watch.rotation.set(...curRot);
 }
