@@ -20,7 +20,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer, idleTimer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount, curState = States.closed;
+let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
 
 const clock = new THREE.Clock();
 
@@ -177,6 +177,7 @@ function init() {
 	// UI Events
 	document.getElementById('discover-more').addEventListener('click', discoverMore);
 	document.getElementById('rotate').addEventListener('click', larotation);
+	document.getElementById('launch-btn').addEventListener('click', launchAnimation);
 }
 
 function onWindowResize() {
@@ -290,6 +291,10 @@ function discoverMore3(steps) {
 		clearInterval(timer);
 		document.getElementById('rotate').style.display = 'block';
 		document.getElementById('button-bar').style.display = 'block';
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
 	}
 }
 
@@ -329,3 +334,84 @@ function idle() {
 	watch.rotation.set(...curRot);
 }
 
+//	Animations
+let curState = States.closed, prevState = States.closed;
+function launchAnimation() {	
+
+	if(curState == States.closed) {
+		prevState = curState;
+		curState = States.explosion;
+
+		actions['explosion'].play();
+		actions['closed'].stop();
+
+		document.getElementById('prev-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>le démantèlement</b>';
+
+		document.getElementById('prev-passive').style.display = 'block';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		document.getElementById('launch-btn').classList.add('launch-btn-right');
+		document.getElementById('launch-btn').classList.remove('launch-btn-left');
+
+		setTimeout(() => {
+			actions['explosion'].stop();
+			actions['folded'].play();			
+
+			prevState = curState;
+			curState = States.exploded;
+		}, 5000);		
+
+		document.getElementById('rotate').style.display = 'none';
+		
+	} else if(curState == States.exploded) {
+		prevState = curState;
+		curState = States.unfolding;
+
+		actions['unfolding'].play();
+		actions['folded'].stop();
+
+		document.getElementById('next-text').innerHTML = 'Démantèlement';
+		document.getElementById('btn-text').innerHTML = 'Revenir<br/><b>à l’explosion</b>';
+
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'block';
+		document.getElementById('next-passive').style.display = 'block';
+		document.getElementById('next-active').style.display = 'none';
+		document.getElementById('launch-btn').classList.add('launch-btn-left');
+		document.getElementById('launch-btn').classList.remove('launch-btn-right');
+
+		setTimeout(() => {
+			actions['unfolding'].stop();
+			actions['unfolded'].play();			
+
+			prevState = curState;
+			curState = States.unfolded;
+		}, 6000);
+	} else if(curState == States.unfolded) {
+		prevState = curState;
+		curState = States.folding;
+
+		actions['folding'].play();
+		actions['unfolded'].stop();
+
+		document.getElementById('prev-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>le démantèlement</b>';
+
+		document.getElementById('prev-passive').style.display = 'block';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		document.getElementById('launch-btn').classList.add('launch-btn-right');
+		document.getElementById('launch-btn').classList.remove('launch-btn-left');
+
+		setTimeout(() => {
+			actions['folding'].stop();
+			actions['folded'].play();			
+
+			prevState = curState;
+			curState = States.exploded;
+		}, 6000);
+	}
+}

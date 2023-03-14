@@ -70,21 +70,28 @@
 				<div style="width: 2px; position: absolute; top: -35px; left: 50%;">
 					<hr style="height: 35px; margin: 0px; background-color: #fdd205;">
 					<a href="#">
-						<div id="launch-btn" class="launch-btn">
-							<div style="margin: 0px;">Lancer</div>
-							<div style="font-family: 'NittiGrotesk-Bold'; margin: 0px;">l’explosion</div>
+						<div id="launch-btn" class="launch-btn-right">
+							<div id="btn-text" style="font-family: 'NittiGrotesk'; margin: 0px;">Lancer<br/><b>l’explosion</b></div>
 						</div>
 					</a>
 				</div>
 
 				<div class="prev">
-					<div style="width: 2px; position: absolute; top: 20px; left: 45%;">
+					<div id="prev-passive" style="width: 2px; position: absolute; top: 20px; left: 45%;">
+						<div class="prev-passive"></div>
 						<hr style="height: 20px; margin: 0px; background-color: #aaa;">
-						<div class="passive-text">Explosion</div>
+						<div id="prev-text" class="passive-text">Explosion</div>
 					</div>
+					<div id="prev-active" class="prev-active"></div>
 				</div>
 
-				<div class="next"></div>
+				<div class="next">
+					<div id="next-passive" style="width: 2px; position: absolute; top: 20px; left: 45%;">
+						<hr style="height: 20px; margin: 0px; background-color: #aaa;">
+						<div id="next-text" class="passive-text">Explosion</div>
+					</div>
+					<div id="next-active" class="next-active"></div>
+				</div>
 			</div>
 		</div>
 
