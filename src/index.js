@@ -105,7 +105,7 @@ function init() {
 		//action.loop = THREE.LoopPingPong;
 		//action.play();
 		//actions['folded'].play();
-		actions['closed'].play();
+		actions['closed'].play(); 
 
 		
 		object.scene.traverse( function ( child ) {
