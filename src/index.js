@@ -19,7 +19,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 
 let showTooltip = true;
 
-let timer;
+let timer, idleTimer;
 let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount, curState = States.closed;
 
 const clock = new THREE.Clock();
@@ -143,7 +143,7 @@ function init() {
 		container.style.display = 'block';
 		document.getElementById('discover-more').style.display = 'block';
 
-		timer = setInterval(idle, 20);
+		idleTimer = setInterval(idle, 20);
 	}, 
 	function (xhr) {
 		progressbar.style.width = ( xhr.loaded / xhr.total * 100 ) + '%';
@@ -227,52 +227,69 @@ function moveAndRotate() {
 }
 
 //	Discover More
+
+let moveCount;
 function discoverMore() {
 	document.getElementById('discover-more').style.display = 'none';
 	clearInterval(timer);
+	clearInterval(idleTimer);
 
 	prevPos = curPos;
 	prevRot = curRot;
-	nextPos = [0.0, 0.0, 0.0];
+	nextPos = [0.0, -0.3, 0.0];
 	//nextRot = [0.0, 0.0, 0.0];
-	rotCount = 50;
-	timer = setInterval(discoverMore1, 20);
+	let steps;
+
+		if(curRot[1] < 0) {
+			nextRot = [curRot[0], 0, curRot[2]];
+			steps = parseInt((0 - curRot[1]) / Math.PI * 180);
+			rotCount = steps;
+		} else {
+			nextRot = [curRot[0], Math.PI * 2, curRot[2]];
+			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * 180);
+			rotCount = steps;
+		}
+
+	moveCount = steps + 30;
+	idleTimer = setInterval(() => discoverMore2(steps), 20);
+	timer = setInterval(() => discoverMore1(steps + 30), 20);
 }
 
-function discoverMore1() {
-	curPos = [(nextPos[0] - prevPos[0]) / 50 + curPos[0], (nextPos[1] - prevPos[1]) / 50 + curPos[1], (nextPos[2] - prevPos[2]) / 50 + curPos[2]];
+function discoverMore1(steps) {
+	curPos = [(nextPos[0] - prevPos[0]) / steps + curPos[0], (nextPos[1] - prevPos[1]) / steps + curPos[1], (nextPos[2] - prevPos[2]) / steps + curPos[2]];
 	
 	watch.position.set(...curPos);
 
-	if((--rotCount) == 0) {
+	if((--moveCount) == 0) {
 		clearInterval(timer);
-		rotCount = 50;
+		rotCount = 80;
 		prevRot = curRot;
-		nextRot = [curRot[0], 0.0, curRot[2]];
-		timer = setInterval(discoverMore2, 20);
+		nextRot = [0.0, curRot[1], curRot[2]];
+		prevPos = curPos;
+		nextPos = [0.0, 0.0, 0.0];
+		timer = setInterval(() => discoverMore3(80), 20);		
 	}
 }
-function discoverMore2() {
-	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+function discoverMore2(steps) {
+	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
 	
 	watch.rotation.set(...curRot);
 
 	if((--rotCount) == 0) {
-		clearInterval(timer);
-		rotCount = 50;
-		prevRot = curRot;
-		nextRot = [0.0, curRot[1], curRot[2]];
-		timer = setInterval(discoverMore3, 20);
+		clearInterval(idleTimer);
 	}
 }
-function discoverMore3() {
-	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+function discoverMore3(steps) {
+	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
+	curPos = [(nextPos[0] - prevPos[0]) / steps + curPos[0], (nextPos[1] - prevPos[1]) / steps + curPos[1], (nextPos[2] - prevPos[2]) / steps + curPos[2]];
 	
+	watch.position.set(...curPos);
 	watch.rotation.set(...curRot);
 
 	if((--rotCount) == 0) {
 		clearInterval(timer);
 		document.getElementById('rotate').style.display = 'block';
+		document.getElementById('button-bar').style.display = 'block';
 	}
 }
 
@@ -281,6 +298,7 @@ let laRotating = false, laForward = true;
 function larotation() {
 	if(!laRotating) {
 		laRotating = true;
+		document.getElementById('button-bar').style.display = 'none';
 
 		timer = setInterval(laRotation1, 20);
 	}
@@ -297,6 +315,7 @@ function laRotation1() {
 		laForward = true;
 		curRot[0] = 0.0;
 		laRotating = false;
+		document.getElementById('button-bar').style.display = 'block';
 	}
 
 	watch.rotation.set(...curRot);
@@ -304,8 +323,9 @@ function laRotation1() {
 
 //	Rotation at the beginning
 function idle() {
-	curRot[1] += Math.PI / 360;
+	curRot[1] += Math.PI / 180;
 	if(curRot[1] >= Math.PI) curRot[1] -= 2 * Math.PI;
 	
 	watch.rotation.set(...curRot);
 }
+
