@@ -19,7 +19,7 @@ body {
 
 @media only screen and (max-width: 600px) {
   html {
-    font-size: 8px !important;
+    font-size: 10px !important;
   }
   body {
     min-height: 400px;

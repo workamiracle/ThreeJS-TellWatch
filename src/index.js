@@ -20,7 +20,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer, idleTimer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
+let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.45, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
 
 const clock = new THREE.Clock();
 
@@ -96,11 +96,36 @@ function init() {
 
 	// model
 	const loader = new GLTFLoader();
-	loader.load( './models/tellwatch_all.glb', function ( object ) {
+	loader.load( './models/tellwatch_all1.glb', function ( object ) {
 
 		mixer = new THREE.AnimationMixer( object.scene );
+		mixer.addEventListener('loop', (e) => {
+			if(e.action.getClip().name == 'explosion') {
+				e.action.time = 5;
+			} else if(e.action.getClip().name == 'unfolding') {
+				e.action.time = 6;
+			} else if(e.action.getClip().name == 'folding') {
+				e.action.time = 4;
+			}
+		});
+		mixer.addEventListener('finished', (e) => {
+			if(e.action.getClip().name == 'explosion') {
+				e.action.reset();
+				e.action.time = 5;
+				e.action.play();
+			} else if(e.action.getClip().name == 'unfolding') {
+				e.action.reset();
+				e.action.time = 6;
+				e.action.play();
+			} else if(e.action.getClip().name == 'folding') {
+				e.action.reset();
+				e.action.time = 4;
+				e.action.play();
+			}
+		});
+
 		actions = loadActions(mixer, object.animations[0]);
-		//const action = mixer.clipAction( object.animations[ 0 ] );
+		const action = mixer.clipAction( object.animations[ 0 ] );
 		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 260, 490, 25));
 		//action.loop = THREE.LoopPingPong;
 		//action.play();
@@ -119,7 +144,7 @@ function init() {
 		} );
 
 		watch = object.scene;
-		watch.position.set(-0.3, 0, 0);
+		watch.position.set(-0.45, -0.3, 0);
 		watch.rotation.set(-Math.PI / 4, 0, 0);
 		//watch.scale.set(10, 10, 10);
 
@@ -243,17 +268,17 @@ function discoverMore() {
 
 		if(curRot[1] < 0) {
 			nextRot = [curRot[0], 0, curRot[2]];
-			steps = parseInt((0 - curRot[1]) / Math.PI * 180);
+			steps = parseInt((0 - curRot[1]) / Math.PI * 120);
 			rotCount = steps;
 		} else {
 			nextRot = [curRot[0], Math.PI * 2, curRot[2]];
-			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * 180);
+			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * 120);
 			rotCount = steps;
 		}
 
-	moveCount = steps + 30;
+	moveCount = steps > 45 ? steps - 45 : steps - 5;
 	idleTimer = setInterval(() => discoverMore2(steps), 20);
-	timer = setInterval(() => discoverMore1(steps + 30), 20);
+	timer = setInterval(() => discoverMore1(steps > 45 ? steps - 45 : steps - 5), 20);
 }
 
 function discoverMore1(steps) {
@@ -262,13 +287,7 @@ function discoverMore1(steps) {
 	watch.position.set(...curPos);
 
 	if((--moveCount) == 0) {
-		clearInterval(timer);
-		rotCount = 80;
-		prevRot = curRot;
-		nextRot = [0.0, curRot[1], curRot[2]];
-		prevPos = curPos;
-		nextPos = [0.0, 0.0, 0.0];
-		timer = setInterval(() => discoverMore3(80), 20);		
+		clearInterval(timer);		
 	}
 }
 function discoverMore2(steps) {
@@ -278,6 +297,12 @@ function discoverMore2(steps) {
 
 	if((--rotCount) == 0) {
 		clearInterval(idleTimer);
+		rotCount = 60;
+		prevRot = curRot;
+		nextRot = [0.0, curRot[1], curRot[2]];
+		prevPos = curPos;
+		nextPos = [0.0, 0.0, 0.0];
+		timer = setInterval(() => discoverMore3(60), 20);		
 	}
 }
 function discoverMore3(steps) {
@@ -309,7 +334,7 @@ function larotation() {
 	}
 }
 function laRotation1() {
-	curRot = [curRot[0] + Math.PI / 200, 0.0, 0.0];
+	curRot = [curRot[0] + Math.PI / 160, 0.0, 0.0];
 	if(laForward && curRot[0] >= Math.PI) {
 		clearInterval(timer);
 		laForward = false;
@@ -356,9 +381,6 @@ function launchAnimation() {
 		document.getElementById('launch-btn').classList.remove('launch-btn-left');
 
 		setTimeout(() => {
-			actions['explosion'].stop();
-			actions['folded'].play();			
-
 			prevState = curState;
 			curState = States.exploded;
 		}, 5000);		
@@ -370,7 +392,8 @@ function launchAnimation() {
 		curState = States.unfolding;
 
 		actions['unfolding'].play();
-		actions['folded'].stop();
+		actions['explosion'].stop();
+		actions['folding'].stop();
 
 		document.getElementById('next-text').innerHTML = 'Démantèlement';
 		document.getElementById('btn-text').innerHTML = 'Revenir<br/><b>à l’explosion</b>';
@@ -383,18 +406,15 @@ function launchAnimation() {
 		document.getElementById('launch-btn').classList.remove('launch-btn-right');
 
 		setTimeout(() => {
-			actions['unfolding'].stop();
-			actions['unfolded'].play();			
-
 			prevState = curState;
 			curState = States.unfolded;
 		}, 6000);
-	} else if(curState == States.unfolded) {
+	}  else if(curState == States.unfolded) {
 		prevState = curState;
 		curState = States.folding;
 
 		actions['folding'].play();
-		actions['unfolded'].stop();
+		actions['unfolding'].stop();
 
 		document.getElementById('prev-text').innerHTML = 'Explosion';
 		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>le démantèlement</b>';
@@ -407,11 +427,8 @@ function launchAnimation() {
 		document.getElementById('launch-btn').classList.remove('launch-btn-left');
 
 		setTimeout(() => {
-			actions['folding'].stop();
-			actions['folded'].play();			
-
 			prevState = curState;
 			curState = States.exploded;
-		}, 6000);
+		}, 5000);
 	}
 }
