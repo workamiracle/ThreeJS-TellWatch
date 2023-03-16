@@ -1,4 +1,6 @@
 export const States = {
+  backward: 'backward',
+  rotating: 'rotating',
   closed: 'closed', 
   explosion: 'explosion', 
   exploded: 'exploded', 
