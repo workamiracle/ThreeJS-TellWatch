@@ -20,7 +20,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer, idleTimer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.45, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
+let curRot = [-Math.PI / 4, 0.0, -Math.PI], curPos = [-0.45, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
 
 const clock = new THREE.Clock();
 
@@ -144,8 +144,8 @@ function init() {
 		} );
 
 		watch = object.scene;
-		watch.position.set(-0.45, -0.3, 0);
-		watch.rotation.set(-Math.PI / 4, 0, 0);
+		watch.position.set(...curPos);
+		watch.rotation.set(...curRot);
 		//watch.scale.set(10, 10, 10);
 
 		scene.add( watch );
@@ -267,15 +267,19 @@ function discoverMore() {
 	//nextRot = [0.0, 0.0, 0.0];
 	let steps;
 
-		if(curRot[1] < 0) {
-			nextRot = [curRot[0], 0, curRot[2]];
-			steps = parseInt((0 - curRot[1]) / Math.PI * speed1);
-			rotCount = steps;
-		} else {
-			nextRot = [curRot[0], Math.PI * 2, curRot[2]];
-			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * speed1);
-			rotCount = steps;
-		}
+	if(curRot[1] < 0) {
+		nextRot = [curRot[0], 0, curRot[2]];
+		steps = parseInt((0 - curRot[1]) / Math.PI * speed1);
+		rotCount = steps;
+	} else {
+		nextRot = [curRot[0], Math.PI * 2, curRot[2]];
+		steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * speed1);
+		rotCount = steps;
+	}
+
+	nextRot = [curRot[0], Math.PI, curRot[2]];
+	steps = parseInt((Math.PI - curRot[1]) / Math.PI * speed1);
+	rotCount = steps;
 
 	moveCount = steps > 60 ? steps - 60 : steps - 5;
 	idleTimer = setInterval(() => discoverMore2(steps), 20);
@@ -316,15 +320,23 @@ function discoverMore3(steps) {
 	if((--rotCount) == 0) {
 		clearInterval(timer);
 		
-		rotCount = 120;
-		prevRot = curRot;
-		nextRot = [Math.PI, curRot[1], curRot[2]];
-		timer = setInterval(() => discoverMore4(120), 20);
+		//rotCount = 120;
+		//prevRot = curRot;
+		//nextRot = [Math.PI, curRot[1], curRot[2]];
+		//timer = setInterval(() => discoverMore4(120), 20);
+		document.getElementById('button-bar').style.display = 'block';
+		document.getElementById('prev-passive').style.display = prevState == States.backward ? 'block' : 'none';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		curState = States.backward;
 	}
 }
 function discoverMore4(steps) {
 	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
 	watch.rotation.set(...curRot);
+
+	if(curRot[0] > 2 * Math.PI) curRot[0] -= Math.PI * 2;
 
 	if((--rotCount) == 0) {
 		clearInterval(timer);
@@ -385,7 +397,7 @@ function launchAnimation() {
 		
 		rotCount = 120;
 		prevRot = curRot;
-		nextRot = [Math.PI * 2, curRot[1], curRot[2]];
+		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
 		timer = setInterval(() => discoverMore4(120), 20);
 
 		document.getElementById('prev-text').innerHTML = 'Rotation';
