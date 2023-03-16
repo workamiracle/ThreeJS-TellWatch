@@ -19,7 +19,7 @@ body {
 
 @media only screen and (max-width: 600px) {
   html {
-    font-size: 8px !important;
+    font-size: 10px !important;
   }
   body {
     min-height: 400px;
@@ -88,4 +88,173 @@ body {
 
 .click-buttons .rotate a:hover img {
   height: 165px;
+}
+
+.click-buttons .button-bar {
+  position: absolute;
+  bottom: 6%;
+  width: 500px;
+  left: calc((100vw - 500px) / 2);
+}
+@media only screen and (max-width: 600px) {
+  .click-buttons .button-bar {
+    width: 80%;
+    left: 10%;
+  }
+}
+
+.click-buttons .button-bar hr {
+  border-width: 0px;
+  opacity: 1;
+}
+
+.click-buttons .button-bar .cur-spot {
+  position: absolute;
+  left: calc(50% - 20px);
+  top: -3px;
+  width: 40px;
+  height: 40px;
+  background-color: #fdd205;
+  border-radius: 100%;
+  border: 3px solid #fff;
+}
+@media only screen and (max-width: 600px) {
+  .click-buttons .button-bar .cur-spot {
+    top: -10px;
+  }
+}
+
+.button-bar .launch-btn-right {
+  position: absolute;
+  margin: 0;
+  padding: 0.5rem;
+  top: 0px;
+  font-size: 1.5rem;
+  border: 3px solid #fdd205;
+  text-decoration: none;
+  color: #000;
+  width: 15rem;
+  line-height: 20px;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.launch-btn-right:after {
+  left: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  position: absolute;
+  border-left-color: #fdd205;
+  border-width: 14px;
+  margin-top: -12px;
+  margin-left: 5px;
+  transition: all 0.3s;
+}
+
+.button-bar a:hover .launch-btn-right:after {
+  margin-left: 10px;
+}
+
+.button-bar .launch-btn-left {
+  position: absolute;
+  margin: 0;
+  padding: 0.5rem;
+  top: 0px;
+  font-size: 1.5rem;
+  border: 3px solid #fdd205;
+  text-decoration: none;
+  color: #000;
+  width: 15rem;
+  line-height: 20px;
+  transform: translateX(-50%) translateY(-100%);
+}
+
+.launch-btn-left:after {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  position: absolute;
+  border-right-color: #fdd205;
+  border-width: 14px;
+  margin-top: -12px;
+  margin-right: 5px;
+  transition: all 0.3s;
+}
+
+.button-bar a:hover .launch-btn-left:after {
+  margin-right: 10px;
+}
+
+.button-bar .prev {
+  display: block;
+  position: absolute;
+  left: calc(15% + 10px);
+  top: 7px;
+}
+@media only screen and (max-width: 600px) {
+  .button-bar .prev {
+    top: 0px;
+  }
+}
+
+.button-bar .prev-passive {
+  position: absolute;
+  left: -10px;
+  top: -20px;
+  width: 20px;
+  height: 20px;
+  background-color: #aaa;
+  border-radius: 100%;
+}
+
+.button-bar .prev-active {
+  position: absolute;
+  left: -10px;
+  top: 0px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 100%;
+  border: 2px solid #000;
+}
+
+.button-bar .passive-text {
+  position: absolute;
+  color: #aaa;
+  font-style: italic;
+  transform: translateX(-50%);
+}
+
+.button-bar .next {
+  display: block;
+  position: absolute;
+  left: calc(85% - 10px);
+  top: 7px;
+}
+@media only screen and (max-width: 600px) {
+  .button-bar .next {
+    top: 0px;
+  }
+}
+
+.button-bar .next-passive {
+  position: absolute;
+  left: -10px;
+  top: -20px;
+  width: 20px;
+  height: 20px;
+  background-color: #aaa;
+  border-radius: 100%;
+}
+
+.button-bar .next-active {
+  position: absolute;
+  left: -10px;
+  top: 0px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 100%;
+  border: 2px solid #000;
 }

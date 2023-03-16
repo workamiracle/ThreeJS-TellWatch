@@ -19,8 +19,8 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 
 let showTooltip = true;
 
-let timer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.3, 0, 0], nextRot, nextPos, prevRot, prevPos, rotCount, curState = States.closed;
+let timer, idleTimer;
+let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.45, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
 
 const clock = new THREE.Clock();
 
@@ -96,16 +96,41 @@ function init() {
 
 	// model
 	const loader = new GLTFLoader();
-	loader.load( './models/tellwatch_all.glb', function ( object ) {
+	loader.load( './models/tellwatch_all1.glb', function ( object ) {
 
 		mixer = new THREE.AnimationMixer( object.scene );
+		mixer.addEventListener('loop', (e) => {
+			if(e.action.getClip().name == 'explosion') {
+				e.action.time = 5;
+			} else if(e.action.getClip().name == 'unfolding') {
+				e.action.time = 6;
+			} else if(e.action.getClip().name == 'folding') {
+				e.action.time = 4;
+			}
+		});
+		mixer.addEventListener('finished', (e) => {
+			if(e.action.getClip().name == 'explosion') {
+				e.action.reset();
+				e.action.time = 5;
+				e.action.play();
+			} else if(e.action.getClip().name == 'unfolding') {
+				e.action.reset();
+				e.action.time = 6;
+				e.action.play();
+			} else if(e.action.getClip().name == 'folding') {
+				e.action.reset();
+				e.action.time = 4;
+				e.action.play();
+			}
+		});
+
 		actions = loadActions(mixer, object.animations[0]);
-		//const action = mixer.clipAction( object.animations[ 0 ] );
+		const action = mixer.clipAction( object.animations[ 0 ] );
 		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 260, 490, 25));
 		//action.loop = THREE.LoopPingPong;
 		//action.play();
 		//actions['folded'].play();
-		actions['closed'].play();
+		actions['closed'].play(); 
 
 		
 		object.scene.traverse( function ( child ) {
@@ -119,7 +144,7 @@ function init() {
 		} );
 
 		watch = object.scene;
-		watch.position.set(-0.3, 0, 0);
+		watch.position.set(-0.45, -0.3, 0);
 		watch.rotation.set(-Math.PI / 4, 0, 0);
 		//watch.scale.set(10, 10, 10);
 
@@ -143,7 +168,7 @@ function init() {
 		container.style.display = 'block';
 		document.getElementById('discover-more').style.display = 'block';
 
-		timer = setInterval(idle, 20);
+		idleTimer = setInterval(idle, 20);
 	}, 
 	function (xhr) {
 		progressbar.style.width = ( xhr.loaded / xhr.total * 100 ) + '%';
@@ -177,6 +202,7 @@ function init() {
 	// UI Events
 	document.getElementById('discover-more').addEventListener('click', discoverMore);
 	document.getElementById('rotate').addEventListener('click', larotation);
+	document.getElementById('launch-btn').addEventListener('click', launchAnimation);
 }
 
 function onWindowResize() {
@@ -227,52 +253,88 @@ function moveAndRotate() {
 }
 
 //	Discover More
+
+let moveCount;
+let speed1 = 80, speed2 = 40;		//	Change these values. The smaller they are, the faster the rotation and translation is.
 function discoverMore() {
 	document.getElementById('discover-more').style.display = 'none';
 	clearInterval(timer);
+	clearInterval(idleTimer);
 
 	prevPos = curPos;
 	prevRot = curRot;
-	nextPos = [0.0, 0.0, 0.0];
+	nextPos = [0.0, -0.3, 0.0];
 	//nextRot = [0.0, 0.0, 0.0];
-	rotCount = 50;
-	timer = setInterval(discoverMore1, 20);
+	let steps;
+
+		if(curRot[1] < 0) {
+			nextRot = [curRot[0], 0, curRot[2]];
+			steps = parseInt((0 - curRot[1]) / Math.PI * speed1);
+			rotCount = steps;
+		} else {
+			nextRot = [curRot[0], Math.PI * 2, curRot[2]];
+			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * speed1);
+			rotCount = steps;
+		}
+
+	moveCount = steps > 60 ? steps - 60 : steps - 5;
+	idleTimer = setInterval(() => discoverMore2(steps), 20);
+	timer = setInterval(() => discoverMore1(steps > 60 ? steps - 60 : steps - 5), 20);
 }
 
-function discoverMore1() {
-	curPos = [(nextPos[0] - prevPos[0]) / 50 + curPos[0], (nextPos[1] - prevPos[1]) / 50 + curPos[1], (nextPos[2] - prevPos[2]) / 50 + curPos[2]];
+function discoverMore1(steps) {
+	curPos = [(nextPos[0] - prevPos[0]) / steps + curPos[0], (nextPos[1] - prevPos[1]) / steps + curPos[1], (nextPos[2] - prevPos[2]) / steps + curPos[2]];
 	
 	watch.position.set(...curPos);
 
-	if((--rotCount) == 0) {
-		clearInterval(timer);
-		rotCount = 50;
-		prevRot = curRot;
-		nextRot = [curRot[0], 0.0, curRot[2]];
-		timer = setInterval(discoverMore2, 20);
+	if((--moveCount) == 0) {
+		clearInterval(timer);		
 	}
 }
-function discoverMore2() {
-	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+function discoverMore2(steps) {
+	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
 	
 	watch.rotation.set(...curRot);
 
 	if((--rotCount) == 0) {
-		clearInterval(timer);
-		rotCount = 50;
+		clearInterval(idleTimer);
+		rotCount = speed2;
 		prevRot = curRot;
 		nextRot = [0.0, curRot[1], curRot[2]];
-		timer = setInterval(discoverMore3, 20);
+		prevPos = curPos;
+		nextPos = [0.0, 0.0, 0.0];
+		timer = setInterval(() => discoverMore3(speed2), 20);		
 	}
 }
-function discoverMore3() {
-	curRot = [(nextRot[0] - prevRot[0]) / 50 + curRot[0], (nextRot[1] - prevRot[1]) / 50 + curRot[1], (nextRot[2] - prevRot[2]) / 50 + curRot[2]];
+function discoverMore3(steps) {
+	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
+	curPos = [(nextPos[0] - prevPos[0]) / steps + curPos[0], (nextPos[1] - prevPos[1]) / steps + curPos[1], (nextPos[2] - prevPos[2]) / steps + curPos[2]];
 	
+	watch.position.set(...curPos);
 	watch.rotation.set(...curRot);
 
 	if((--rotCount) == 0) {
 		clearInterval(timer);
-		document.getElementById('rotate').style.display = 'block';
+		
+		rotCount = 120;
+		prevRot = curRot;
+		nextRot = [Math.PI, curRot[1], curRot[2]];
+		timer = setInterval(() => discoverMore4(120), 20);
+	}
+}
+function discoverMore4(steps) {
+	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
+	watch.rotation.set(...curRot);
+
+	if((--rotCount) == 0) {
+		clearInterval(timer);
+		//document.getElementById('rotate').style.display = 'block';
+		document.getElementById('button-bar').style.display = 'block';
+		document.getElementById('prev-passive').style.display = prevState == States.backward ? 'block' : 'none';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		curState = States.backward;
 	}
 }
 
@@ -281,12 +343,13 @@ let laRotating = false, laForward = true;
 function larotation() {
 	if(!laRotating) {
 		laRotating = true;
+		document.getElementById('button-bar').style.display = 'none';
 
 		timer = setInterval(laRotation1, 20);
 	}
 }
 function laRotation1() {
-	curRot = [curRot[0] + Math.PI / 200, 0.0, 0.0];
+	curRot = [curRot[0] + Math.PI / 120, 0.0, 0.0];
 	if(laForward && curRot[0] >= Math.PI) {
 		clearInterval(timer);
 		laForward = false;
@@ -297,6 +360,7 @@ function laRotation1() {
 		laForward = true;
 		curRot[0] = 0.0;
 		laRotating = false;
+		document.getElementById('button-bar').style.display = 'block';
 	}
 
 	watch.rotation.set(...curRot);
@@ -304,8 +368,159 @@ function laRotation1() {
 
 //	Rotation at the beginning
 function idle() {
-	curRot[1] += Math.PI / 360;
+	curRot[1] += Math.PI / 180;
 	if(curRot[1] >= Math.PI) curRot[1] -= 2 * Math.PI;
 	
 	watch.rotation.set(...curRot);
+}
+
+//	Animations
+let curState = States.closed, prevState = States.closed;
+function launchAnimation() {	
+	if(curState == States.backward) {
+		prevState = curState;
+		curState = States.rotating;
+
+		clearInterval(timer);
+		
+		rotCount = 120;
+		prevRot = curRot;
+		nextRot = [Math.PI * 2, curRot[1], curRot[2]];
+		timer = setInterval(() => discoverMore4(120), 20);
+
+		document.getElementById('prev-text').innerHTML = 'Rotation';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>à l’explosion</b>';
+
+		document.getElementById('prev-passive').style.display = 'block';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		document.getElementById('launch-btn').classList.add('launch-btn-right');
+		document.getElementById('launch-btn').classList.remove('launch-btn-left');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.closed;
+
+			//document.getElementById('prev-passive').style.display = 'block';
+		}, 2500);	
+
+	}	else if(curState == States.closed && prevState == States.backward) {
+		prevState = curState;
+		curState = States.explosion;
+
+		actions['explosion'].play();
+		actions['closed'].stop();
+
+		document.getElementById('prev-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>le démantèlement</b>';
+
+		document.getElementById('prev-passive').style.display = 'block';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		document.getElementById('launch-btn').classList.add('launch-btn-right');
+		document.getElementById('launch-btn').classList.remove('launch-btn-left');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.exploded;
+		}, 5000);		
+
+		document.getElementById('rotate').style.display = 'none';
+		
+	}	else if(curState == States.closed && prevState == States.closing) {
+		prevState = curState;
+		curState = States.rotating;
+
+		clearInterval(timer);
+		
+		rotCount = 120;
+		prevRot = curRot;
+		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+		timer = setInterval(() => discoverMore4(120), 20);
+
+		//document.getElementById('prev-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>la rotation</b>';
+
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'none';
+		document.getElementById('next-passive').style.display = 'none';
+		document.getElementById('next-active').style.display = 'block';
+		document.getElementById('launch-btn').classList.add('launch-btn-right');
+		document.getElementById('launch-btn').classList.remove('launch-btn-left');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.backward;
+		}, 2500);		
+		
+	} else if(curState == States.exploded) {
+		prevState = curState;
+		curState = States.unfolding;
+
+		actions['unfolding'].play();
+		actions['explosion'].stop();
+		actions['folding'].stop();
+
+		document.getElementById('next-text').innerHTML = 'Démantèlement';
+		document.getElementById('btn-text').innerHTML = 'Revenir<br/><b>à l’explosion</b>';
+
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'block';
+		document.getElementById('next-passive').style.display = 'block';
+		document.getElementById('next-active').style.display = 'none';
+		document.getElementById('launch-btn').classList.add('launch-btn-left');
+		document.getElementById('launch-btn').classList.remove('launch-btn-right');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.unfolded;
+		}, 6000);
+	}  else if(curState == States.unfolded) {
+		prevState = curState;
+		curState = States.folding;
+
+		actions['folding'].play();
+		actions['unfolding'].stop();
+
+		document.getElementById('next-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Retour<br/><b>à la rotation</b>';
+
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'block';
+		document.getElementById('next-passive').style.display = 'block';
+		document.getElementById('next-active').style.display = 'none';
+		document.getElementById('launch-btn').classList.add('launch-btn-left');
+		document.getElementById('launch-btn').classList.remove('launch-btn-right');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.folded;
+		}, 4000);
+	}  else if(curState == States.folded) {
+		prevState = curState;
+		curState = States.closing;
+
+		actions['closing'].play();
+		actions['folding'].stop();
+
+		document.getElementById('next-text').innerHTML = 'Explosion';
+		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>la rotation</b>';
+
+		document.getElementById('prev-passive').style.display = 'none';
+		document.getElementById('prev-active').style.display = 'block';
+		document.getElementById('next-passive').style.display = 'block';
+		document.getElementById('next-active').style.display = 'none';
+		document.getElementById('launch-btn').classList.add('launch-btn-left');
+		document.getElementById('launch-btn').classList.remove('launch-btn-right');
+
+		setTimeout(() => {
+			prevState = curState;
+			curState = States.closed;
+
+			actions['closed'].play();
+			actions['closing'].stop();
+		}, 4000);
+	}
 }
