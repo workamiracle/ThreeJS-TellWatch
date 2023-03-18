@@ -42,7 +42,7 @@
 			</div>
 		</div>
 
-		<div id="discover-more" class="click-buttons">
+		<div id="discover-more" class="click-buttons"> 
 			<div class="discover-more">
 				<a href="#">EN SAVOIR PLUS</a>
 			</div>
@@ -60,38 +60,103 @@
 			</div>
 		</div>
 
+		<div id="POI-click" class="POI-click"></div>
+
 		<div id="button-bar" class="click-buttons">
 			<div class="button-bar">
 				<div>
 					<hr style="height: 3px; background-color: #000;">
 				</div>
-				<div class="cur-spot"></div>
 
-				<div style="width: 2px; position: absolute; top: -35px; left: 50%;">
-					<hr style="height: 35px; margin: 0px; background-color: #fdd205;">
-					<a href="#">
-						<div id="launch-btn" class="launch-btn-right">
-							<div id="btn-text" style="font-family: 'NittiGrotesk'; margin: 0px;">Lancer<br/><b>la rotation</b></div>
-						</div>
-					</a>
+				<div id="dial" class="dial">
+					<div id="dial-current" class="current">
+						<div class="cur-spot"></div>
+						<hr>
+						<div class="title"><b>Cadran</b></div>
+					</div>
+					<div id="dial-backward" class="backward">
+						<div class="backward-spot"></div>
+						<hr>
+						<div class="title">Cadran</div>
+					</div>
+					<div id="dial-forward" class="forward">
+						<div class="forward-spot"></div>
+						<hr>
+						<div class="title">Cadran</div>
+					</div>
 				</div>
 
-				<div class="prev">
-					<div id="prev-passive" style="width: 2px; position: absolute; top: 20px; left: 45%;">
-						<div class="prev-passive"></div>
-						<hr style="height: 20px; margin: 0px; background-color: #aaa;">
-						<div id="prev-text" class="passive-text">Rotation</div>
+				<div id="movement" class="movement">
+					<div id="movement-current" class="current">
+						<div class="cur-spot"></div>
+						<hr>
+						<div class="title"><b>Movement</b></div>
 					</div>
-					<div id="prev-active" class="prev-active"></div>
+					<div id="movement-backward" class="backward">
+						<div class="backward-spot"></div>
+						<hr>
+						<div class="title">Movement</div>
+					</div>
+					<div id="movement-forward" class="forward">
+						<div class="forward-spot"></div>
+						<hr>
+						<div class="title">Movement</div>
+					</div>
 				</div>
 
-				<div class="next">
-					<div id="next-passive" style="width: 2px; position: absolute; top: 20px; left: 45%;">
-						<div class="next-passive"></div>
-						<hr style="height: 20px; margin: 0px; background-color: #aaa;">
-						<div id="next-text" class="passive-text">Explosion</div>
+				<div id="explosion" class="explosion">
+					<div id="explosion-current" class="current">
+						<div class="cur-spot"></div>
+						<hr>
+						<div class="title"><b>Explosion</b></div>
 					</div>
-					<div id="next-active" class="next-active"></div>
+					<div id="explosion-backward" class="backward">
+						<div class="backward-spot"></div>
+						<hr>
+						<div class="title">Explosion</div>
+					</div>
+					<div id="explosion-forward" class="forward">
+						<div class="forward-spot"></div>
+						<hr>
+						<div class="title">Explosion</div>
+					</div>
+				</div>
+
+				<div id="organs" class="organs">
+					<div id="organs-current" class="current">
+						<div class="cur-spot"></div>
+						<hr>
+						<div class="title"><b>5 Organs</b></div>
+					</div>
+					<div id="organs-backward" class="backward">
+						<div class="backward-spot"></div>
+						<hr>
+						<div class="title">5 Organs</div>
+					</div>
+					<div id="organs-forward" class="forward">
+						<div class="forward-spot"></div>
+						<hr>
+						<div class="title">5 Organs</div>
+					</div>
+				</div>
+
+			</div>
+		</div>			
+		
+		<div id="POI" class="POI">
+			<div id="POI-backward" style="display: none; position: relative;">
+				<div class="POIs" style="left: max(38vw, calc(38vh + (100vw - 100vh) / 2)); top: min(43vw, 43vh);">
+					<div class="popup-tooltip popup-tooltip-left">Aiguille des heures</div>
+				</div>
+				<div class="POIs" style="left: min(65vw, calc(65vh + (100vw - 100vh) / 2)); top: min(38vw, 38vh);">
+					<span class="popup-tooltip popup-tooltip-right">Aiguille des minutes</span>
+				</div>
+				<div class="POIs" style="left: 50%; top: min(33vw, 33vh);">
+					<span class="popup-tooltip popup-tooltip-up"><b>AFFICHAGE</b><br/>Cadran et aiguilles<br/>Ils servent à afficher le temps et les fonctions
+						</span>
+				</div>
+				<div class="POIs" style="left: 50%; top: min(60vw, 60vh);">
+					<span class="popup-tooltip popup-tooltip-down">Aiguille des secondes</span>
 				</div>
 			</div>
 		</div>

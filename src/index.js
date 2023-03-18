@@ -20,7 +20,7 @@ let composer, effectFXAA, customOutline, depthTexture, renderTarget;
 let showTooltip = true;
 
 let timer, idleTimer;
-let curRot = [-Math.PI / 4, 0, 0], curPos = [-0.45, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
+let curRot = [-Math.PI / 4, 0.0, -Math.PI], curPos = [-0.5, -0.3, 0], nextRot, nextPos, prevRot, prevPos, rotCount;
 
 const clock = new THREE.Clock();
 
@@ -144,8 +144,8 @@ function init() {
 		} );
 
 		watch = object.scene;
-		watch.position.set(-0.45, -0.3, 0);
-		watch.rotation.set(-Math.PI / 4, 0, 0);
+		watch.position.set(...curPos);
+		watch.rotation.set(...curRot);
 		//watch.scale.set(10, 10, 10);
 
 		scene.add( watch );
@@ -202,7 +202,26 @@ function init() {
 	// UI Events
 	document.getElementById('discover-more').addEventListener('click', discoverMore);
 	document.getElementById('rotate').addEventListener('click', larotation);
-	document.getElementById('launch-btn').addEventListener('click', launchAnimation);
+	Array.prototype.forEach.call(document.getElementsByClassName('POIs'), (item) => {
+		item.addEventListener('click', (e) => {
+			if(e.target.lastElementChild !== null) {
+				Array.prototype.forEach.call(document.getElementById('POI').children, (item) => {
+					Array.prototype.forEach.call(item.children, (pois) => {
+						if(pois.lastElementChild !== null) pois.lastElementChild.classList.remove('show');
+					});
+				});
+
+				e.target.lastElementChild.classList.toggle('show');
+			} 
+		});
+	});
+	document.getElementById('POI-click').addEventListener('click', () => {
+		Array.prototype.forEach.call(document.getElementById('POI').children, (item) => {
+			Array.prototype.forEach.call(item.children, (pois) => {
+				if(pois.lastElementChild !== null) pois.lastElementChild.classList.remove('show');
+			});
+		});
+	});
 }
 
 function onWindowResize() {
@@ -267,19 +286,13 @@ function discoverMore() {
 	//nextRot = [0.0, 0.0, 0.0];
 	let steps;
 
-		if(curRot[1] < 0) {
-			nextRot = [curRot[0], 0, curRot[2]];
-			steps = parseInt((0 - curRot[1]) / Math.PI * speed1);
-			rotCount = steps;
-		} else {
-			nextRot = [curRot[0], Math.PI * 2, curRot[2]];
-			steps = parseInt((Math.PI * 2 - curRot[1]) / Math.PI * speed1);
-			rotCount = steps;
-		}
+	nextRot = [curRot[0], Math.PI, curRot[2]];
+	steps = parseInt((Math.PI - curRot[1]) / Math.PI * speed1);
+	rotCount = steps;
 
-	moveCount = steps > 60 ? steps - 60 : steps - 5;
+	moveCount = steps > 100 ? steps - 60 : steps - 5;
 	idleTimer = setInterval(() => discoverMore2(steps), 20);
-	timer = setInterval(() => discoverMore1(steps > 60 ? steps - 60 : steps - 5), 20);
+	timer = setInterval(() => discoverMore1(steps > 100 ? steps - 60 : steps - 5), 20);
 }
 
 function discoverMore1(steps) {
@@ -316,24 +329,37 @@ function discoverMore3(steps) {
 	if((--rotCount) == 0) {
 		clearInterval(timer);
 		
-		rotCount = 120;
-		prevRot = curRot;
-		nextRot = [Math.PI, curRot[1], curRot[2]];
-		timer = setInterval(() => discoverMore4(120), 20);
+		document.getElementById('button-bar').style.display = 'block';
+		document.getElementById('POI-backward').style.display = 'block';
+
+		document.getElementById('dial-current').style.display = 'none';
+		document.getElementById('dial-forward').style.display = 'none';
+		document.getElementById('dial-backward').style.display = 'block';
+
+		document.getElementById('movement-current').style.display = 'block';
+		document.getElementById('movement-forward').style.display = 'none';
+		document.getElementById('movement-backward').style.display = 'none';
+
+		document.getElementById('explosion-current').style.display = 'none';
+		document.getElementById('explosion-forward').style.display = 'block';
+		document.getElementById('explosion-backward').style.display = 'none';
+
+		document.getElementById('organs-current').style.display = 'none';
+		document.getElementById('organs-forward').style.display = 'block';
+		document.getElementById('organs-backward').style.display = 'none';
+		curState = States.backward;
 	}
 }
 function discoverMore4(steps) {
 	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
 	watch.rotation.set(...curRot);
 
+	if(curRot[0] > 2 * Math.PI) curRot[0] -= Math.PI * 2;
+
 	if((--rotCount) == 0) {
 		clearInterval(timer);
 		//document.getElementById('rotate').style.display = 'block';
 		document.getElementById('button-bar').style.display = 'block';
-		document.getElementById('prev-passive').style.display = prevState == States.backward ? 'block' : 'none';
-		document.getElementById('prev-active').style.display = 'none';
-		document.getElementById('next-passive').style.display = 'none';
-		document.getElementById('next-active').style.display = 'block';
 		curState = States.backward;
 	}
 }
@@ -385,18 +411,8 @@ function launchAnimation() {
 		
 		rotCount = 120;
 		prevRot = curRot;
-		nextRot = [Math.PI * 2, curRot[1], curRot[2]];
+		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
 		timer = setInterval(() => discoverMore4(120), 20);
-
-		document.getElementById('prev-text').innerHTML = 'Rotation';
-		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>à l’explosion</b>';
-
-		document.getElementById('prev-passive').style.display = 'block';
-		document.getElementById('prev-active').style.display = 'none';
-		document.getElementById('next-passive').style.display = 'none';
-		document.getElementById('next-active').style.display = 'block';
-		document.getElementById('launch-btn').classList.add('launch-btn-right');
-		document.getElementById('launch-btn').classList.remove('launch-btn-left');
 
 		setTimeout(() => {
 			prevState = curState;
@@ -411,16 +427,6 @@ function launchAnimation() {
 
 		actions['explosion'].play();
 		actions['closed'].stop();
-
-		document.getElementById('prev-text').innerHTML = 'Explosion';
-		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>le démantèlement</b>';
-
-		document.getElementById('prev-passive').style.display = 'block';
-		document.getElementById('prev-active').style.display = 'none';
-		document.getElementById('next-passive').style.display = 'none';
-		document.getElementById('next-active').style.display = 'block';
-		document.getElementById('launch-btn').classList.add('launch-btn-right');
-		document.getElementById('launch-btn').classList.remove('launch-btn-left');
 
 		setTimeout(() => {
 			prevState = curState;
@@ -440,16 +446,6 @@ function launchAnimation() {
 		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
 		timer = setInterval(() => discoverMore4(120), 20);
 
-		//document.getElementById('prev-text').innerHTML = 'Explosion';
-		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>la rotation</b>';
-
-		document.getElementById('prev-passive').style.display = 'none';
-		document.getElementById('prev-active').style.display = 'none';
-		document.getElementById('next-passive').style.display = 'none';
-		document.getElementById('next-active').style.display = 'block';
-		document.getElementById('launch-btn').classList.add('launch-btn-right');
-		document.getElementById('launch-btn').classList.remove('launch-btn-left');
-
 		setTimeout(() => {
 			prevState = curState;
 			curState = States.backward;
@@ -463,16 +459,6 @@ function launchAnimation() {
 		actions['explosion'].stop();
 		actions['folding'].stop();
 
-		document.getElementById('next-text').innerHTML = 'Démantèlement';
-		document.getElementById('btn-text').innerHTML = 'Revenir<br/><b>à l’explosion</b>';
-
-		document.getElementById('prev-passive').style.display = 'none';
-		document.getElementById('prev-active').style.display = 'block';
-		document.getElementById('next-passive').style.display = 'block';
-		document.getElementById('next-active').style.display = 'none';
-		document.getElementById('launch-btn').classList.add('launch-btn-left');
-		document.getElementById('launch-btn').classList.remove('launch-btn-right');
-
 		setTimeout(() => {
 			prevState = curState;
 			curState = States.unfolded;
@@ -484,16 +470,6 @@ function launchAnimation() {
 		actions['folding'].play();
 		actions['unfolding'].stop();
 
-		document.getElementById('next-text').innerHTML = 'Explosion';
-		document.getElementById('btn-text').innerHTML = 'Retour<br/><b>à la rotation</b>';
-
-		document.getElementById('prev-passive').style.display = 'none';
-		document.getElementById('prev-active').style.display = 'block';
-		document.getElementById('next-passive').style.display = 'block';
-		document.getElementById('next-active').style.display = 'none';
-		document.getElementById('launch-btn').classList.add('launch-btn-left');
-		document.getElementById('launch-btn').classList.remove('launch-btn-right');
-
 		setTimeout(() => {
 			prevState = curState;
 			curState = States.folded;
@@ -504,16 +480,6 @@ function launchAnimation() {
 
 		actions['closing'].play();
 		actions['folding'].stop();
-
-		document.getElementById('next-text').innerHTML = 'Explosion';
-		document.getElementById('btn-text').innerHTML = 'Lancer<br/><b>la rotation</b>';
-
-		document.getElementById('prev-passive').style.display = 'none';
-		document.getElementById('prev-active').style.display = 'block';
-		document.getElementById('next-passive').style.display = 'block';
-		document.getElementById('next-active').style.display = 'none';
-		document.getElementById('launch-btn').classList.add('launch-btn-left');
-		document.getElementById('launch-btn').classList.remove('launch-btn-right');
 
 		setTimeout(() => {
 			prevState = curState;
