@@ -6,7 +6,6 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/addons/shaders/FXAAShader.js";
-import { toCreasedNormals, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 
 import { CustomOutlinePass } from "./CustomOutlinePass.js";
@@ -24,7 +23,7 @@ let curRot = [-Math.PI / 4, 0.0, -Math.PI], curPos = [-0.5, -0.3, 0], nextRot, n
 
 const clock = new THREE.Clock();
 
-let mixer, actions;
+let mixer, actions, action, animation;
 
 init();
 animate();
@@ -99,38 +98,36 @@ function init() {
 	loader.load( './models/tellwatch_all1.glb', function ( object ) {
 
 		mixer = new THREE.AnimationMixer( object.scene );
-		mixer.addEventListener('loop', (e) => {
-			if(e.action.getClip().name == 'explosion') {
-				e.action.time = 5;
-			} else if(e.action.getClip().name == 'unfolding') {
-				e.action.time = 6;
-			} else if(e.action.getClip().name == 'folding') {
-				e.action.time = 4;
-			}
-		});
+
 		mixer.addEventListener('finished', (e) => {
+			console.log(e.action.getClip().name);
+
 			if(e.action.getClip().name == 'explosion') {
 				e.action.reset();
-				e.action.time = 5;
+				e.action.time = e.action.getClip().duration - 9;
 				e.action.play();
 			} else if(e.action.getClip().name == 'unfolding') {
 				e.action.reset();
-				e.action.time = 6;
+				e.action.time = e.action.getClip().duration - 10;
 				e.action.play();
 			} else if(e.action.getClip().name == 'folding') {
 				e.action.reset();
-				e.action.time = 4;
+				e.action.time = e.action.getClip().duration - 6;
+				e.action.play();
+			} else if(e.action.getClip().name == 'closing') {
+				e.action.reset();
+				e.action.time = e.action.getClip().duration - 3;
 				e.action.play();
 			}
 		});
 
-		actions = loadActions(mixer, object.animations[0]);
-		const action = mixer.clipAction( object.animations[ 0 ] );
+		animation = object.animations[0];
+		action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closed', 0, 160, 25));
 		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 260, 490, 25));
 		//action.loop = THREE.LoopPingPong;
-		//action.play();
+		action.play();
 		//actions['folded'].play();
-		actions['closed'].play(); 
+		//actions['closed'].play(); 
 
 		
 		object.scene.traverse( function ( child ) {
@@ -202,6 +199,19 @@ function init() {
 	// UI Events
 	document.getElementById('discover-more').addEventListener('click', discoverMore);
 	document.getElementById('rotate').addEventListener('click', larotation);
+
+	document.getElementById('dial-backward').addEventListener('click', () => launchAnimation(States.backward, false));
+	document.getElementById('dial-forward').addEventListener('click', () => launchAnimation(States.backward, true));
+
+	document.getElementById('movement-backward').addEventListener('click', () => launchAnimation(States.closed, false));
+	document.getElementById('movement-forward').addEventListener('click', () => launchAnimation(States.closed, true));
+
+	document.getElementById('explosion-backward').addEventListener('click', () => launchAnimation(States.exploded, false));
+	document.getElementById('explosion-forward').addEventListener('click', () => launchAnimation(States.exploded, true));
+
+	document.getElementById('organs-backward').addEventListener('click', () => launchAnimation(States.unfolded, false));
+	document.getElementById('organs-forward').addEventListener('click', () => launchAnimation(States.unfolded, true));
+
 	Array.prototype.forEach.call(document.getElementsByClassName('POIs'), (item) => {
 		item.addEventListener('click', (e) => {
 			if(e.target.lastElementChild !== null) {
@@ -215,6 +225,7 @@ function init() {
 			} 
 		});
 	});
+
 	document.getElementById('POI-click').addEventListener('click', () => {
 		Array.prototype.forEach.call(document.getElementById('POI').children, (item) => {
 			Array.prototype.forEach.call(item.children, (pois) => {
@@ -328,16 +339,16 @@ function discoverMore3(steps) {
 
 	if((--rotCount) == 0) {
 		clearInterval(timer);
-		
+
 		document.getElementById('button-bar').style.display = 'block';
 		document.getElementById('POI-backward').style.display = 'block';
 
-		document.getElementById('dial-current').style.display = 'none';
+		document.getElementById('dial-current').style.display = 'block';
 		document.getElementById('dial-forward').style.display = 'none';
-		document.getElementById('dial-backward').style.display = 'block';
+		document.getElementById('dial-backward').style.display = 'none';
 
-		document.getElementById('movement-current').style.display = 'block';
-		document.getElementById('movement-forward').style.display = 'none';
+		document.getElementById('movement-current').style.display = 'none';
+		document.getElementById('movement-forward').style.display = 'block';
 		document.getElementById('movement-backward').style.display = 'none';
 
 		document.getElementById('explosion-current').style.display = 'none';
@@ -354,13 +365,10 @@ function discoverMore4(steps) {
 	curRot = [(nextRot[0] - prevRot[0]) / steps + curRot[0], (nextRot[1] - prevRot[1]) / steps + curRot[1], (nextRot[2] - prevRot[2]) / steps + curRot[2]];
 	watch.rotation.set(...curRot);
 
-	if(curRot[0] > 2 * Math.PI) curRot[0] -= Math.PI * 2;
+	if(curRot[0] >= Math.PI) curRot[0] -= Math.PI * 2;
 
 	if((--rotCount) == 0) {
 		clearInterval(timer);
-		//document.getElementById('rotate').style.display = 'block';
-		document.getElementById('button-bar').style.display = 'block';
-		curState = States.backward;
 	}
 }
 
@@ -401,92 +409,241 @@ function idle() {
 }
 
 //	Animations
-let curState = States.closed, prevState = States.closed;
-function launchAnimation() {	
-	if(curState == States.backward) {
-		prevState = curState;
-		curState = States.rotating;
-
-		clearInterval(timer);
-		
-		rotCount = 120;
-		prevRot = curRot;
-		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
-		timer = setInterval(() => discoverMore4(120), 20);
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.closed;
-
-			//document.getElementById('prev-passive').style.display = 'block';
-		}, 2500);	
-
-	}	else if(curState == States.closed && prevState == States.backward) {
-		prevState = curState;
-		curState = States.explosion;
-
-		actions['explosion'].play();
-		actions['closed'].stop();
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.exploded;
-		}, 5000);		
-
-		document.getElementById('rotate').style.display = 'none';
-		
-	}	else if(curState == States.closed && prevState == States.closing) {
-		prevState = curState;
-		curState = States.rotating;
-
-		clearInterval(timer);
-		
-		rotCount = 120;
-		prevRot = curRot;
-		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
-		timer = setInterval(() => discoverMore4(120), 20);
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.backward;
-		}, 2500);		
-		
-	} else if(curState == States.exploded) {
-		prevState = curState;
-		curState = States.unfolding;
-
-		actions['unfolding'].play();
-		actions['explosion'].stop();
-		actions['folding'].stop();
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.unfolded;
-		}, 6000);
-	}  else if(curState == States.unfolded) {
-		prevState = curState;
-		curState = States.folding;
-
-		actions['folding'].play();
-		actions['unfolding'].stop();
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.folded;
-		}, 4000);
-	}  else if(curState == States.folded) {
-		prevState = curState;
-		curState = States.closing;
-
-		actions['closing'].play();
-		actions['folding'].stop();
-
-		setTimeout(() => {
-			prevState = curState;
-			curState = States.closed;
-
-			actions['closed'].play();
-			actions['closing'].stop();
-		}, 4000);
+let curState;
+function launchAnimation(state, forward) {
+	console.log(state);
+	if(curState != States.transition) {
+		if(state == States.backward) document.getElementById('left-bar').style.width = '12.5%';
+		else if(state == States.closed) document.getElementById('left-bar').style.width = '37.5%';
+		else if(state == States.exploded) document.getElementById('left-bar').style.width = '62.5%';
+		else if(state == States.unfolded) document.getElementById('left-bar').style.width = '87.5%';
 	}
+
+	if(curState == States.backward) {
+		curState = States.transition;
+		clearInterval(timer);
+		
+		rotCount = 120;
+		prevRot = curRot;
+		nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+		timer = setInterval(() => discoverMore4(120), 20);
+
+		document.getElementById('dial-current').style.display = 'none';
+		document.getElementById('dial-backward').style.display = 'block';
+		document.getElementById('POI-backward').style.display = 'none';
+	
+		if(state == States.closed) {
+			document.getElementById('movement-current').style.display = 'block';
+			document.getElementById('movement-forward').style.display = 'none';
+		} else if(state == States.exploded) {
+			document.getElementById('explosion-current').style.display = 'block';
+			document.getElementById('explosion-forward').style.display = 'none';
+			document.getElementById('movement-backward').style.display = 'block';
+			document.getElementById('movement-forward').style.display = 'none';
+		} else if(state == States.unfolded) {
+			document.getElementById('explosion-backward').style.display = 'block';
+			document.getElementById('explosion-forward').style.display = 'none';
+			document.getElementById('movement-backward').style.display = 'block';
+			document.getElementById('movement-forward').style.display = 'none';
+			document.getElementById('organs-current').style.display = 'block';
+			document.getElementById('organs-forward').style.display = 'none';
+		}
+		
+		setTimeout(() => {
+			if(state == States.closed) {
+				curState = state;
+				document.getElementById('POI-closed').style.display = 'block';
+			}
+			else {
+				action.stop();
+				if(state == States.exploded) {
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));					
+					
+					setTimeout(() => {
+						curState = state;
+						document.getElementById('POI-exploded').style.display = 'block';
+					}, 4500);
+				} else if(state == States.unfolded) {
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));					
+					
+					setTimeout(() => {
+						curState = state;
+						document.getElementById('POI-unfolded').style.display = 'block';
+					}, 18000);
+				}
+				action.setLoop(THREE.LoopOnce);
+				action.play();	
+			}
+		}, 2400);
+	} else if(curState == States.closed) {
+		curState = States.transition;
+
+		document.getElementById('movement-current').style.display = 'none';
+		document.getElementById('POI-closed').style.display = 'none';
+
+		if(state == States.backward) {
+			document.getElementById('movement-forward').style.display = 'block';
+			document.getElementById('dial-backward').style.display = 'none';
+			document.getElementById('dial-current').style.display = 'block';
+		} else if(state == States.exploded) {
+			document.getElementById('movement-backward').style.display = 'block';
+			document.getElementById('explosion-current').style.display = 'block';
+			document.getElementById('explosion-forward').style.display = 'none';
+		} else if(state == States.unfolded) {
+			document.getElementById('movement-backward').style.display = 'block';
+			document.getElementById('organs-current').style.display = 'block';
+			document.getElementById('organs-forward').style.display = 'none';
+			document.getElementById('explosion-backward').style.display = 'block';
+			document.getElementById('explosion-forward').style.display = 'none';
+		}
+
+		if(state == States.backward) {
+			clearInterval(timer);
+			
+			rotCount = 120;
+			prevRot = curRot;
+			nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+			timer = setInterval(() => discoverMore4(120), 20);
+			setTimeout(() => {
+				curState = state;
+			}, 2400);
+		} else {
+			action.stop();
+
+			if(state == States.exploded) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));				
+					
+				setTimeout(() => {
+					curState = state;
+				}, 4.5);
+			} else if(state == States.unfolded) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));					
+				
+				setTimeout(() => {
+					curState = state;
+				}, 18);
+			}
+			action.setLoop(THREE.LoopOnce);
+			action.play();
+		}
+	} else if(curState == States.exploded) {
+		curState = States.transition;
+
+		document.getElementById('explosion-current').style.display = 'none';
+		document.getElementById('POI-exploded').style.display = 'none';
+
+		if(state == States.backward) {
+			document.getElementById('explosion-forward').style.display = 'block';
+			document.getElementById('dial-backward').style.display = 'none';
+			document.getElementById('dial-current').style.display = 'block';
+			document.getElementById('movement-backward').style.display = 'none';
+			document.getElementById('movement-forward').style.display = 'block';
+		} else if(state == States.closed) {
+			document.getElementById('explosion-forward').style.display = 'block';
+			document.getElementById('movement-current').style.display = 'block';
+			document.getElementById('movement-backward').style.display = 'none';
+		} else if(state == States.unfolded) {
+			document.getElementById('explosion-backward').style.display = 'block';
+			document.getElementById('organs-current').style.display = 'block';
+			document.getElementById('organs-forward').style.display = 'none';
+		}
+
+		action.stop();
+
+		if(state == States.backward) {
+			action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1411, 1600, 25));	
+			action.setLoop(THREE.LoopOnce);
+			action.play();
+
+			setTimeout(() => {
+				clearInterval(timer);
+			
+				rotCount = 120;
+				prevRot = curRot;
+				nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+				timer = setInterval(() => discoverMore4(120), 20);
+				setTimeout(() => {
+					curState = state;
+				}, 2400);
+			}, 4000);
+		} else {
+			if(state == States.closed) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1411, 1600, 25));				
+					
+				setTimeout(() => {
+					curState = state;
+					document.getElementById('POI-closed').style.display = 'block';
+				}, 4);
+			} else if(state == States.unfolded) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 490, 1152, 25));					
+				
+				setTimeout(() => {
+					curState = state;
+				}, 5);
+			}
+			action.setLoop(THREE.LoopOnce);
+			action.play();
+		}
+	} else if(curState == States.unfolded) {
+		curState = States.transition;
+
+		document.getElementById('organs-current').style.display = 'none';
+		document.getElementById('organs-forward').style.display = 'block';
+		document.getElementById('POI-unfolded').style.display = 'none';
+
+		if(state == States.backward) {
+			document.getElementById('dial-backward').style.display = 'none';
+			document.getElementById('dial-current').style.display = 'block';
+			document.getElementById('movement-backward').style.display = 'none';
+			document.getElementById('movement-forward').style.display = 'block';
+			document.getElementById('explosion-backward').style.display = 'none';
+			document.getElementById('explosion-forward').style.display = 'block';
+		} else if(state == States.closed) {
+			document.getElementById('movement-current').style.display = 'block';
+			document.getElementById('movement-backward').style.display = 'none';
+			document.getElementById('explosion-forward').style.display = 'block';
+			document.getElementById('explosion-backward').style.display = 'none';
+		} else if(state == States.exploded) {
+			document.getElementById('explosion-current').style.display = 'block';
+			document.getElementById('explosion-backward').style.display = 'none';
+		}
+
+		action.stop();
+
+		if(state == States.backward) {
+			action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));			
+			action.setLoop(THREE.LoopOnce);
+			action.play();
+
+			setTimeout(() => {
+				clearInterval(timer);
+			
+				rotCount = 120;
+				prevRot = curRot;
+				nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+				timer = setInterval(() => discoverMore4(120), 20);
+				setTimeout(() => {
+					curState = state;
+				}, 2400);
+			}, 15000);
+		} else {
+			if(state == States.closed) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));				
+					
+				setTimeout(() => {
+					curState = state;
+					document.getElementById('POI-closed').style.display = 'block';
+				}, 15000);
+			} else if(state == States.exploded) {
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'folding', 1152, 1411, 25));					
+				
+				setTimeout(() => {
+					curState = state;
+				}, 3000);
+			}
+			action.setLoop(THREE.LoopOnce);
+			action.play();
+		}
+	}
+
 }
