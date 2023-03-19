@@ -68,6 +68,10 @@
 					<hr style="height: 3px; background-color: #000;">
 				</div>
 
+				<div>
+					<hr id="left-bar" class="left-bar">
+				</div>
+
 				<div id="dial" class="dial">
 					<div id="dial-current" class="current">
 						<div class="cur-spot"></div>
@@ -90,17 +94,17 @@
 					<div id="movement-current" class="current">
 						<div class="cur-spot"></div>
 						<hr>
-						<div class="title"><b>Movement</b></div>
+						<div class="title"><b>Mouvement</b></div>
 					</div>
 					<div id="movement-backward" class="backward">
 						<div class="backward-spot"></div>
 						<hr>
-						<div class="title">Movement</div>
+						<div class="title">Mouvement</div>
 					</div>
 					<div id="movement-forward" class="forward">
 						<div class="forward-spot"></div>
 						<hr>
-						<div class="title">Movement</div>
+						<div class="title">Mouvement</div>
 					</div>
 				</div>
 
@@ -126,17 +130,17 @@
 					<div id="organs-current" class="current">
 						<div class="cur-spot"></div>
 						<hr>
-						<div class="title"><b>5 Organs</b></div>
+						<div class="title"><b>5 organes</b></div>
 					</div>
 					<div id="organs-backward" class="backward">
 						<div class="backward-spot"></div>
 						<hr>
-						<div class="title">5 Organs</div>
+						<div class="title">5 organes</div>
 					</div>
 					<div id="organs-forward" class="forward">
 						<div class="forward-spot"></div>
 						<hr>
-						<div class="title">5 Organs</div>
+						<div class="title">5 organes</div>
 					</div>
 				</div>
 
@@ -157,6 +161,24 @@
 				</div>
 				<div class="POIs" style="left: 50%; top: min(60vw, 60vh);">
 					<span class="popup-tooltip popup-tooltip-down">Aiguille des secondes</span>
+				</div>
+			</div>
+
+			<div id="POI-closed" style="display: none; position: relative;">
+				<div class="POIs" style="left: max(49vw, calc(49vh + (100vw - 100vh) / 2)); top: min(24vw, 24vh);">
+					<div class="popup-tooltip popup-tooltip-up">Mouvement de la montre</div>
+				</div>
+			</div>
+
+			<div id="POI-exploded" style="display: none; position: relative;">
+				<div class="POIs" style="left: max(49vw, calc(49vh + (100vw - 100vh) / 2)); top: min(24vw, 24vh);">
+					<div class="popup-tooltip popup-tooltip-up">Mouvement de la montre</div>
+				</div>
+			</div>
+
+			<div id="POI-unfolded" style="display: none; position: relative;">
+				<div class="POIs" style="left: max(49vw, calc(49vh + (100vw - 100vh) / 2)); top: min(24vw, 24vh);">
+					<div class="popup-tooltip popup-tooltip-up">Mouvement de la montre</div>
 				</div>
 			</div>
 		</div>

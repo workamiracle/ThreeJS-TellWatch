@@ -153,25 +153,26 @@ body {
 
 .button-bar .cur-spot {
   position: absolute;
-  left: -20px;
-  top: -3px;
-  width: 40px;
-  height: 40px;
+  left: -10px;
+  top: 7px;
+  width: 20px;
+  height: 20px;
   background-color: #fdd205;
   border-radius: 100%;
-  border: 3px solid #fff;
+  border: 2px solid #fff;
 }
 @media only screen and (max-width: 1000px) {
   .button-bar .cur-spot {
-    top: -10px;
+    top: 1px;
   }
 }
 
 .current hr {
-  width: 2px;
+  width: 3px;
   height: 35px;
   position: absolute;
-  top: -35px;
+  top: -25px;
+  left: -1px;
   margin: 0px; 
   background-color: #fdd205;
 }
@@ -185,13 +186,23 @@ body {
   text-align: center;
   padding: 0.5rem;
   margin: 0px;
-  top: -35px;
+  top: -25px;
   transform: translateX(-50%) translateY(-100%);
+}
+
+.button-bar .left-bar {
+  position: absolute;
+  height: 3px;
+  width: 12.5%;
+  top: 0px;
+  opacity: 1;
+  background-color: #B2B3B4;
 }
 
 .button-bar .backward {
   display: block;
   position: absolute;
+  cursor: pointer;
 }
 
 .backward .backward-spot {
@@ -200,6 +211,7 @@ body {
   top: 7px;
   width: 20px;
   height: 20px;
+  outline: 2px solid #fff;
   background-color: #B2B3B4;
   border-radius: 100%;
 }
@@ -214,6 +226,7 @@ body {
   width: 2px;
   height: 35px; 
   top: 20px;
+  left: -1px;
   margin: 0px; 
   background-color: #B2B3B4;
 }
@@ -234,6 +247,7 @@ body {
 .button-bar .forward {
   display: block;
   position: absolute;
+  cursor: pointer;
 }
 
 .forward .forward-spot {
@@ -242,9 +256,10 @@ body {
   top: 7px;
   width: 20px;
   height: 20px;
+  outline: 2px solid #fff;
   background-color: #fff;
   border-radius: 100%;
-  border: 2px solid #000;
+  border: 4px solid #000;
 }
 
 .forward hr {
@@ -252,6 +267,7 @@ body {
   width: 2px;
   height: 35px; 
   top: 25px;
+  left: -1px;
   margin: 0px; 
   background-color: #000;
 }
@@ -318,6 +334,7 @@ body {
 }
 
 .POIs .popup-tooltip-up {
+  line-height: 2rem;
   bottom: 140%;
   width: 20rem;
   left: 0.7rem;
@@ -336,6 +353,7 @@ body {
 }
 
 .POIs .popup-tooltip-down {
+  line-height: 2rem;
   top: 140%;
   width: 20rem;
   left: 0.7rem;
@@ -354,7 +372,8 @@ body {
 }
 
 .POIs .popup-tooltip-left {
-  width: 10rem;
+  line-height: 2rem;
+  width: 20rem;
   right: 130%;
   top: 0.7rem;
   transform: translateY(-50%);
@@ -372,7 +391,8 @@ body {
 }
 
 .POIs .popup-tooltip-right {
-  width: 10rem;
+  line-height: 2rem;
+  width: 20rem;
   left: 130%;
   top: 0.7rem;
   transform: translateY(-50%);
