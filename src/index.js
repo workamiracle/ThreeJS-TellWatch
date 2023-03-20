@@ -122,6 +122,7 @@ function init() {
 		});
 
 		animation = object.animations[0];
+		//action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));		
 		action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closed', 0, 160, 25));
 		//const action = mixer.clipAction(THREE.AnimationUtils.subclip(object.animations[ 0 ], 'unfolding', 260, 490, 25));
 		//action.loop = THREE.LoopPingPong;
@@ -506,6 +507,7 @@ function launchAnimation(state, forward) {
 			timer = setInterval(() => discoverMore4(120), 20);
 			setTimeout(() => {
 				curState = state;
+				document.getElementById('POI-backward').style.display = 'block';
 			}, 2400);
 		} else {
 			action.stop();
@@ -515,13 +517,15 @@ function launchAnimation(state, forward) {
 					
 				setTimeout(() => {
 					curState = state;
-				}, 4.5);
+					document.getElementById('POI-exploded').style.display = 'block';
+				}, 4500);
 			} else if(state == States.unfolded) {
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));					
 				
 				setTimeout(() => {
 					curState = state;
-				}, 18);
+					document.getElementById('POI-unfolded').style.display = 'block';
+				}, 18000);
 			}
 			action.setLoop(THREE.LoopOnce);
 			action.play();
@@ -564,6 +568,7 @@ function launchAnimation(state, forward) {
 				timer = setInterval(() => discoverMore4(120), 20);
 				setTimeout(() => {
 					curState = state;
+					document.getElementById('POI-backward').style.display = 'block';
 				}, 2400);
 			}, 4000);
 		} else {
@@ -573,13 +578,14 @@ function launchAnimation(state, forward) {
 				setTimeout(() => {
 					curState = state;
 					document.getElementById('POI-closed').style.display = 'block';
-				}, 4);
+				}, 4000);
 			} else if(state == States.unfolded) {
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 490, 1152, 25));					
 				
 				setTimeout(() => {
 					curState = state;
-				}, 5);
+					document.getElementById('POI-unfolded').style.display = 'block';
+				}, 5000);
 			}
 			action.setLoop(THREE.LoopOnce);
 			action.play();
@@ -624,6 +630,7 @@ function launchAnimation(state, forward) {
 				timer = setInterval(() => discoverMore4(120), 20);
 				setTimeout(() => {
 					curState = state;
+					document.getElementById('POI-backward').style.display = 'block';
 				}, 2400);
 			}, 15000);
 		} else {
@@ -639,6 +646,7 @@ function launchAnimation(state, forward) {
 				
 				setTimeout(() => {
 					curState = state;
+					document.getElementById('POI-exploded').style.display = 'block';
 				}, 3000);
 			}
 			action.setLoop(THREE.LoopOnce);

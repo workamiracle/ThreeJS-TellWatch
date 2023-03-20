@@ -315,9 +315,11 @@ body {
   color: #fff;
   text-align: center;
   font-family: 'NittiGrotesk';
-  font-size: 2rem;
+  font-size: 1.7rem;
   padding: 8px 0;
   position: absolute;
+  outline: 3px solid #fff;
+  font-weight: bold;
   z-index: 10;
 }
 
