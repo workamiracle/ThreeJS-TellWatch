@@ -14,7 +14,7 @@ import { loadActions } from "./loadActions.js";
 import { States } from "./States.js";
 
 let camera, scene, renderer, controls, watch;
-let composer, effectFXAA, customOutline, depthTexture, renderTarget;
+let composer, effectFXAA, customOutline, customOutline1, depthTexture, renderTarget;
 
 let showTooltip = true;
 
@@ -79,8 +79,22 @@ function init() {
 	uniforms.multiplierParameters.value.z = 0.5;
 	uniforms.multiplierParameters.value.w = 0.2;
 
+	//	Fade pass
+	customOutline1 = new CustomOutlinePass(
+		new THREE.Vector2(window.innerWidth, window.innerHeight),
+		scene,
+		camera
+	);
+	const uniforms1 = customOutline1.fsQuad.material.uniforms;
+	uniforms1.debugVisualize.value = 0;
+	uniforms1.outlineColor.value.set('#aa0000');
+	uniforms1.multiplierParameters.value.x = 5;
+	uniforms1.multiplierParameters.value.y = 0;
+	uniforms1.multiplierParameters.value.z = 0.5;
+	uniforms1.multiplierParameters.value.w = 0.2;
 
 	composer.addPass(customOutline);
+	//composer.addPass(customOutline1);
 
 	// Antialias pass.
 	effectFXAA = new ShaderPass(FXAAShader);	
@@ -100,8 +114,6 @@ function init() {
 		mixer = new THREE.AnimationMixer( object.scene );
 
 		mixer.addEventListener('finished', (e) => {
-			console.log(e.action.getClip().name);
-
 			if(e.action.getClip().name == 'explosion') {
 				e.action.reset();
 				e.action.time = e.action.getClip().duration - 9;
@@ -161,6 +173,7 @@ function init() {
 		});
 
 		customOutline.updateMaxSurfaceId(surfaceFinder.surfaceId + 1);
+		customOutline1.updateMaxSurfaceId(surfaceFinder.surfaceId + 1);
 
 		progress.style.display = 'none';
 		container.style.display = 'block';

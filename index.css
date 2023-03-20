@@ -319,7 +319,6 @@ body {
   padding: 8px 0;
   position: absolute;
   outline: 3px solid #fff;
-  font-weight: bold;
   z-index: 10;
 }
 
@@ -407,6 +406,112 @@ body {
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-right {
+    top: 1rem;
+  }
+}
+
+.POIs .popup-tooltip-organs {
+  visibility: hidden;
+  color: #fff;
+  font-family: 'NittiGrotesk';
+  position: absolute;
+  width: 573px;
+  z-index: 10;
+}
+
+.POIs .popup-tooltip-organs::after {
+  content: "";
+  position: absolute;
+  border-width: 10px;
+  border-style: solid;
+}
+
+.POIs .popup-tooltip-organs video {
+  width: 573px;
+  height: 323px;
+  border: 3px solid #fdd205;
+  background-color: #fff;
+  margin-bottom: 3px;
+}
+.POIs .popup-tooltip-organs .caption {
+  width: 573px;
+  font-size: 18px;
+  background-color: #fdd205;
+  border: 3px solid #fff;
+  padding: 15px 20px;
+  line-height: 25px;
+}
+.POIs .popup-tooltip-organs .caption-title {
+  font-weight: bold;
+  font-size: 27px;
+}
+
+@media only screen and (max-width: 1000px) {
+  .POIs .popup-tooltip-organs {
+    width: 36rem;
+  }
+  .POIs .popup-tooltip-organs video {
+    width: 36rem;
+    height: 20rem;
+  }
+  .POIs .popup-tooltip-organs .caption {
+    width: 36rem;
+  }
+  .POIs .popup-tooltip-organs::after {
+    border-width: 5px;
+  }
+}
+
+.POIs .popup-tooltip-organs-up {
+  line-height: 2rem;
+  bottom: 140%;
+  left: 0.7rem;
+  transform: translateX(-50%);
+}
+.POIs .popup-tooltip-organs-up::after {
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-color: #fdd205 transparent transparent transparent;
+}
+@media only screen and (max-width: 1000px) {
+  .POIs .popup-tooltip-organs-up {
+    left: 1rem;
+  }
+}
+
+.POIs .popup-tooltip-organs-left {
+  line-height: 2rem;
+  right: 130%;
+  top: 0.7rem;
+  transform: translateY(-85%);
+}
+.POIs .popup-tooltip-organs-left::after {
+  top: 85%;
+  left: 100%;
+  margin-top: -5px;
+  border-color: transparent transparent transparent #fdd205;
+}
+@media only screen and (max-width: 1000px) {
+  .POIs .popup-tooltip-organs-left {
+    top: 1rem;
+  }
+}
+
+.POIs .popup-tooltip-organs-right {
+  line-height: 2rem;
+  left: 130%;
+  top: 0.8rem;
+  transform: translateY(-85%);
+}
+.POIs .popup-tooltip-organs-right::after {
+  top: 85%;
+  right: 100%;
+  margin-top: -5px;
+  border-color: transparent #fdd205 transparent transparent;
+}
+@media only screen and (max-width: 1000px) {
+  .POIs .popup-tooltip-organs-right {
     top: 1rem;
   }
 }
