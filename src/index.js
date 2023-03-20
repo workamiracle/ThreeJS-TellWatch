@@ -471,22 +471,33 @@ function launchAnimation(state, forward) {
 			else {
 				action.stop();
 				if(state == States.exploded) {
-					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));					
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));
+					action.setLoop(THREE.LoopOnce);
+					action.play();						
 					
 					setTimeout(() => {
 						curState = state;
 						document.getElementById('POI-exploded').style.display = 'block';
 					}, 4500);
 				} else if(state == States.unfolded) {
-					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));					
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));	
+					action.setLoop(THREE.LoopOnce);
+					action.play();	
 					
 					setTimeout(() => {
-						curState = state;
-						document.getElementById('POI-unfolded').style.display = 'block';
-					}, 18000);
+						action.stop();
+
+						action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 490, 1152, 25));	
+						action.setLoop(THREE.LoopOnce);
+						action.play();	
+
+						setTimeout(() => {
+							curState = state;
+							document.getElementById('POI-unfolded').style.display = 'block';
+						}, 5000);
+					}, 4000);
 				}
-				action.setLoop(THREE.LoopOnce);
-				action.play();	
+				
 			}
 		}, 2400);
 	} else if(curState == States.closed) {
@@ -526,22 +537,32 @@ function launchAnimation(state, forward) {
 			action.stop();
 
 			if(state == States.exploded) {
-				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));				
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));			
+				action.setLoop(THREE.LoopOnce);
+				action.play();	
 					
 				setTimeout(() => {
 					curState = state;
 					document.getElementById('POI-exploded').style.display = 'block';
 				}, 4500);
 			} else if(state == States.unfolded) {
-				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));					
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));		
+				action.setLoop(THREE.LoopOnce);
+				action.play();	
 				
 				setTimeout(() => {
-					curState = state;
-					document.getElementById('POI-unfolded').style.display = 'block';
-				}, 18000);
-			}
-			action.setLoop(THREE.LoopOnce);
-			action.play();
+					action.stop();
+
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 490, 1152, 25));	
+					action.setLoop(THREE.LoopOnce);
+					action.play();	
+
+					setTimeout(() => {
+						curState = state;
+						document.getElementById('POI-unfolded').style.display = 'block';
+					}, 5000);
+				}, 4000);
+			}			
 		}
 	} else if(curState == States.exploded) {
 		curState = States.transition;
@@ -635,35 +656,51 @@ function launchAnimation(state, forward) {
 			action.play();
 
 			setTimeout(() => {
-				clearInterval(timer);
-			
-				rotCount = 120;
-				prevRot = curRot;
-				nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
-				timer = setInterval(() => discoverMore4(120), 20);
+				action.stop();
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1411, 1600, 25));	
+				action.setLoop(THREE.LoopOnce);
+				action.play();
+
 				setTimeout(() => {
-					curState = state;
-					document.getElementById('POI-backward').style.display = 'block';
-				}, 2400);
-			}, 15000);
+					clearInterval(timer);
+			
+					rotCount = 120;
+					prevRot = curRot;
+					nextRot = [Math.PI + curRot[0], curRot[1], curRot[2]];
+					timer = setInterval(() => discoverMore4(120), 20);
+					setTimeout(() => {
+						curState = state;
+						document.getElementById('POI-backward').style.display = 'block';
+					}, 2400);
+				}, 4000);
+			}, 3000);			
 		} else {
 			if(state == States.closed) {
-				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));				
-					
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));	
+				action.setLoop(THREE.LoopOnce);
+				action.play();
+				
 				setTimeout(() => {
-					curState = state;
-					document.getElementById('POI-closed').style.display = 'block';
-				}, 15000);
+					action.stop();
+					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1411, 1600, 25));	
+					action.setLoop(THREE.LoopOnce);
+					action.play();
+
+					setTimeout(() => {
+						curState = state;
+						document.getElementById('POI-closed').style.display = 'block';
+					}, 4000);
+				}, 3000);
 			} else if(state == States.exploded) {
-				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'folding', 1152, 1411, 25));					
+				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'folding', 1152, 1411, 25));	
+				action.setLoop(THREE.LoopOnce);
+				action.play();				
 				
 				setTimeout(() => {
 					curState = state;
 					document.getElementById('POI-exploded').style.display = 'block';
 				}, 3000);
-			}
-			action.setLoop(THREE.LoopOnce);
-			action.play();
+			}			
 		}
 	}
 
