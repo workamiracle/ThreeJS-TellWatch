@@ -41,6 +41,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 
 	camera = new THREE.PerspectiveCamera( 60, window.innerWidth > window.innerHeight ? window.innerWidth / window.innerHeight : 1, 0.1, 2000 );
+	//camera = new THREE.OrthographicCamera( -1, 1, -1, 1, 0.1, 2000 );
 	camera.position.set( 0.0, 1.5, 0.0 );
 
 	scene = new THREE.Scene();
@@ -468,18 +469,27 @@ function launchAnimation(state, forward) {
 				curState = state;
 				document.getElementById('POI-closed').style.display = 'block';
 			}
-			else {
-				action.stop();
+			else {				
 				if(state == States.exploded) {
+					clearInterval(timer);
+		
+					rotCount = 30;
+					prevRot = curRot;
+					nextRot = [Math.PI / -4 + curRot[0], curRot[1], curRot[2]];
+					timer = setInterval(() => discoverMore4(30), 20);
+
+					action.stop();
 					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));
 					action.setLoop(THREE.LoopOnce);
 					action.play();						
-					
+						
 					setTimeout(() => {
 						curState = state;
 						document.getElementById('POI-exploded').style.display = 'block';
 					}, 4500);
+					
 				} else if(state == States.unfolded) {
+					action.stop();
 					action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));	
 					action.setLoop(THREE.LoopOnce);
 					action.play();	
@@ -534,18 +544,25 @@ function launchAnimation(state, forward) {
 				document.getElementById('POI-backward').style.display = 'block';
 			}, 2400);
 		} else {
-			action.stop();
-
 			if(state == States.exploded) {
+				clearInterval(timer);
+		
+				rotCount = 30;
+				prevRot = curRot;
+				nextRot = [Math.PI / -4 + curRot[0], curRot[1], curRot[2]];
+				timer = setInterval(() => discoverMore4(30), 20);
+
+				action.stop();
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'explosion', 160, 490, 25));			
 				action.setLoop(THREE.LoopOnce);
 				action.play();	
-					
+						
 				setTimeout(() => {
 					curState = state;
 					document.getElementById('POI-exploded').style.display = 'block';
 				}, 4500);
 			} else if(state == States.unfolded) {
+				action.stop();
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'unfolding', 160, 1152, 25));		
 				action.setLoop(THREE.LoopOnce);
 				action.play();	
@@ -586,6 +603,13 @@ function launchAnimation(state, forward) {
 			document.getElementById('organs-forward').style.display = 'none';
 		}
 
+		clearInterval(timer);
+		
+		rotCount = 30;
+		prevRot = curRot;
+		nextRot = [Math.PI / 4 + curRot[0], curRot[1], curRot[2]];
+		timer = setInterval(() => discoverMore4(30), 20);
+		
 		action.stop();
 
 		if(state == States.backward) {
@@ -646,11 +670,10 @@ function launchAnimation(state, forward) {
 		} else if(state == States.exploded) {
 			document.getElementById('explosion-current').style.display = 'block';
 			document.getElementById('explosion-backward').style.display = 'none';
-		}
-
-		action.stop();
+		}		
 
 		if(state == States.backward) {
+			action.stop();
 			action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));			
 			action.setLoop(THREE.LoopOnce);
 			action.play();
@@ -676,6 +699,7 @@ function launchAnimation(state, forward) {
 			}, 3000);			
 		} else {
 			if(state == States.closed) {
+				action.stop();
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'closing', 1152, 1600, 25));	
 				action.setLoop(THREE.LoopOnce);
 				action.play();
@@ -692,13 +716,21 @@ function launchAnimation(state, forward) {
 					}, 4000);
 				}, 3000);
 			} else if(state == States.exploded) {
+				clearInterval(timer);
+		
+				rotCount = 30;
+				prevRot = curRot;
+				nextRot = [Math.PI / -4 + curRot[0], curRot[1], curRot[2]];
+				timer = setInterval(() => discoverMore4(30), 20);
+				
+				action.stop();
 				action = mixer.clipAction(THREE.AnimationUtils.subclip(animation, 'folding', 1152, 1411, 25));	
 				action.setLoop(THREE.LoopOnce);
 				action.play();				
 				
 				setTimeout(() => {
 					curState = state;
-					document.getElementById('POI-exploded').style.display = 'block';
+					document.getElementById('POI-exploded').style.display = 'block';							
 				}, 3000);
 			}			
 		}
