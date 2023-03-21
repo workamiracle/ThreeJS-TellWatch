@@ -296,8 +296,8 @@ body {
 .POI .POIs {
   position: absolute;
   background-color: #fdd205;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 28px;
+  height: 28px;
   border-radius: 100%;
   border: 0.3rem solid #fff;
   cursor: pointer;
@@ -318,6 +318,7 @@ body {
   font-size: 1.7rem;
   padding: 8px 0;
   position: absolute;
+  width: 18rem;
   outline: 3px solid #fff;
   z-index: 10;
 }
@@ -337,44 +338,47 @@ body {
 .POIs .popup-tooltip-up {
   line-height: 2rem;
   bottom: 140%;
-  width: 20rem;
   left: 0.7rem;
   transform: translateX(-50%);
 }
 .POIs .popup-tooltip-up::after {
   top: 100%;
   left: 50%;
-  margin-left: -5px;
+  margin-left: -12px;
   border-color: #fdd205 transparent transparent transparent;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-up {
     left: 1rem;
   }
+  .POIs .popup-tooltip-up::after {
+    margin-left: -4px;
+  }
 }
 
 .POIs .popup-tooltip-down {
   line-height: 2rem;
   top: 140%;
-  width: 20rem;
   left: 0.7rem;
   transform: translateX(-50%);
 }
 .POIs .popup-tooltip-down::after {
   bottom: 100%;
   left: 50%;
-  margin-left: -5px;
+  margin-left: -11px;
   border-color: transparent transparent #fdd205 transparent;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-down {
     left: 1rem;
   }
+  .POIs .popup-tooltip-down::after {
+    margin-left: -4px;
+  }
 }
 
 .POIs .popup-tooltip-left {
   line-height: 2rem;
-  width: 20rem;
   right: 130%;
   top: 0.7rem;
   transform: translateY(-50%);
@@ -382,18 +386,20 @@ body {
 .POIs .popup-tooltip-left::after {
   top: 50%;
   left: 100%;
-  margin-top: -5px;
+  margin-top: -11px;
   border-color: transparent transparent transparent #fdd205;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-left {
     top: 1rem;
   }
+  .POIs .popup-tooltip-left::after {
+    margin-top: -5px;
+  }
 }
 
 .POIs .popup-tooltip-right {
   line-height: 2rem;
-  width: 20rem;
   left: 130%;
   top: 0.7rem;
   transform: translateY(-50%);
@@ -401,12 +407,15 @@ body {
 .POIs .popup-tooltip-right::after {
   top: 50%;
   right: 100%;
-  margin-top: -5px;
+  margin-top: -11px;
   border-color: transparent #fdd205 transparent transparent;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-right {
     top: 1rem;
+  }
+  .POIs .popup-tooltip-right::after {
+    margin-top: -5px;
   }
 }
 
@@ -471,12 +480,15 @@ body {
 .POIs .popup-tooltip-organs-up::after {
   top: 100%;
   left: 50%;
-  margin-left: -5px;
+  margin-left: -11px;
   border-color: #fdd205 transparent transparent transparent;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-organs-up {
     left: 1rem;
+  }
+  .POIs .popup-tooltip-organs-up::after {
+    margin-left: -4px;
   }
 }
 
@@ -489,12 +501,15 @@ body {
 .POIs .popup-tooltip-organs-left::after {
   top: 85%;
   left: 100%;
-  margin-top: -5px;
+  margin-top: -12px;
   border-color: transparent transparent transparent #fdd205;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-organs-left {
     top: 1rem;
+  }
+  .POIs .popup-tooltip-organs-left::after {
+    margin-top: -3px;
   }
 }
 
@@ -507,12 +522,15 @@ body {
 .POIs .popup-tooltip-organs-right::after {
   top: 85%;
   right: 100%;
-  margin-top: -5px;
+  margin-top: -12px;
   border-color: transparent #fdd205 transparent transparent;
 }
 @media only screen and (max-width: 1000px) {
   .POIs .popup-tooltip-organs-right {
     top: 1rem;
+  }
+  .POIs .popup-tooltip-organs-right::after {
+    margin-top: -3px;
   }
 }
 
