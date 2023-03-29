@@ -229,14 +229,14 @@ function init() {
 
 	Array.prototype.forEach.call(document.getElementsByClassName('POIs'), (item) => {
 		item.addEventListener('click', (e) => {
-			if(e.target.lastElementChild !== null) {
+			if(e.target.classList.contains('POIs')) {
 				Array.prototype.forEach.call(document.getElementById('POI').children, (item) => {
 					Array.prototype.forEach.call(item.children, (pois) => {
-						if(pois.lastElementChild !== null) pois.lastElementChild.classList.remove('show');
+						pois.children[0].classList.remove('show');
 					});
 				});
 
-				e.target.lastElementChild.classList.toggle('show');
+				e.target.children[0].classList.add('show');
 			} 
 		});
 	});
@@ -244,7 +244,7 @@ function init() {
 	document.getElementById('POI-click').addEventListener('click', () => {
 		Array.prototype.forEach.call(document.getElementById('POI').children, (item) => {
 			Array.prototype.forEach.call(item.children, (pois) => {
-				if(pois.lastElementChild !== null) pois.lastElementChild.classList.remove('show');
+				pois.children[0].classList.remove('show');
 			});
 		});
 	});
